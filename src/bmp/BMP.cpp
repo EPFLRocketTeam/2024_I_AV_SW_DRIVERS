@@ -1,5 +1,19 @@
-#include "BMP.h"
+#include "BMP.hpp"
 
+
+/*
+Main functions:
+
+To get the data, you need to first configure a BMP581 variable, then create a structure, and finally call the function get_data.
+
+BMP581 pressureSensor;
+Wire_r.begin();  // Initialize the Wire instance
+int8_t bmpErr = pressureSensor.beginI2C(BMP5_I2C_ADDR_SEC, &Wire_r); // This should return 0. If a different result is obtained, it indicates failure to configure or detect the sensor.
+bmp5_sensor_data bmpData = {0, 0}; // This is a structure with 2 variables: pressure and temperature
+bmpErr = pressureSensor.getSensorData(&bmpData); // Now the data is present in your bmp5_sensor_data structure, call it with bmpData.pressure or bmpData.temperature
+
+read_bmp(pressureSensor); // Print data onto the serial monitor
+*/
 
 
 static int8_t power_up_check(struct bmp5_dev *dev);
@@ -36,8 +50,8 @@ BMP581::BMP581()
     // Nothing to do
 }
 //done
-///int8_t BMP581::beginI2C(uint8_t address, TwoWire& wirePort)
-int8_t BMP581::beginI2C(uint8_t address, WIRE_TEENSY& wirePort)
+///////////int8_t BMP581::beginI2C(uint8_t address, WIRE_TEENSY& wirePort)
+int8_t BMP581::beginI2C(uint8_t address , I2C_INTERFACE* wirePort)
 {
     // Check whether address is valid option
     if(address != BMP5_I2C_ADDR_PRIM && address != BMP5_I2C_ADDR_SEC)
@@ -48,11 +62,10 @@ int8_t BMP581::beginI2C(uint8_t address, WIRE_TEENSY& wirePort)
     }
     // Address is valid option
     interfaceData.i2cAddress = address;
-    interfaceData.i2cPort = &wirePort;  
+    interfaceData.i2cPort = wirePort;  
     // Set interface
     sensor.intf = BMP5_I2C_INTF;
     interfaceData.interface = BMP5_I2C_INTF;
-
     // Initialize sensor
     return begin();
 
@@ -85,6 +98,7 @@ int8_t BMP581::begin()
     // Initialize the sensor
     err = init();
 
+
     if(err != BMP5_OK)
     {
         return err;
@@ -93,9 +107,11 @@ int8_t BMP581::begin()
     // Enable both pressure and temperature sensors
     err = enablePress(BMP5_ENABLE);
 
+
     if(err != BMP5_OK)
     {
         return err;
+ 
     }
     // Set to normal mode
     return setMode(BMP5_POWERMODE_NORMAL);
@@ -479,6 +495,7 @@ int8_t BMP581::init()
 
     // Reset the sensor
     err = bmp5_soft_reset(&sensor);
+
     if(err != BMP5_OK)
     {
         return err;
@@ -496,7 +513,6 @@ int8_t bmp5_soft_reset(struct bmp5_dev *dev)
 
     /* Reset the device */
     rslt = bmp5_set_regs(BMP5_REG_CMD, &data, 1, dev);
-
     if (rslt == BMP5_OK)
     {
         /* Soft-reset execution takes 2 ms */
@@ -586,6 +602,7 @@ int8_t bmp5_set_regs(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, st
         {
             /* Failure case */
             rslt = BMP5_E_COM_FAIL;
+
         }
     }
     else
@@ -824,7 +841,9 @@ BMP5_INTF_RET_TYPE BMP581::writeRegisters(uint8_t regAddress, const uint8_t* dat
       interfaceData->i2cPort->write(dataBuffer[i]);
     }
     // End transmission
-    if(interfaceData->i2cPort->endTransmission())
+    uint8_t  test=interfaceData->i2cPort->endTransmission();
+    //if(interfaceData->i2cPort->endTransmission())
+    if(test)
     {
       return BMP5_E_COM_FAIL;
     }

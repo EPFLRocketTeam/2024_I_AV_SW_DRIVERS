@@ -2,7 +2,8 @@
 #ifndef BMP_def_H
 #define BMP_def_H
 
-#include "I2c_interface.h"
+
+#include "Wire_teensy.hpp"
 
 //#include <stdint.h>
 //#include <stddef.h>

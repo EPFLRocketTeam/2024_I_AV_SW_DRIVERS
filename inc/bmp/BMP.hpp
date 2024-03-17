@@ -1,9 +1,8 @@
-#ifndef SENSORS_H
-#define SENSORS_H
+#ifndef BMP_H
+#define BMP_H
 
 
-#include "BMP_def.h"
-
+#include "BMP_def.hpp"
 
 
 
@@ -29,7 +28,8 @@ struct BMP581_InterfaceData
     // I2C settings
     uint8_t i2cAddress;
     ////TwoWire* i2cPort;
-    WIRE_TEENSY* i2cPort;
+   // WIRE_TEENSY* i2cPort;
+    I2C_INTERFACE* i2cPort;
 
     /*// SPI settings
     uint8_t spiCSPin;
@@ -250,8 +250,7 @@ class BMP581
         BMP581();
 
         // Sensor initialization, must specify communication interface
-        //int8_t beginI2C(uint8_t address = BMP5_I2C_ADDR_SEC, TwoWire& wirePort = Wire);
-        int8_t beginI2C(uint8_t address = BMP5_I2C_ADDR_SEC, WIRE_TEENSY& wirePort = Wire_r);
+        int8_t beginI2C(uint8_t address = BMP5_I2C_ADDR_SEC, I2C_INTERFACE* wirePort= nullptr );
         // Configuration control, the begin functions will set defaults for these
         int8_t init();
         int8_t setMode(bmp5_powermode mode);
@@ -284,6 +283,7 @@ class BMP581
         // Place to store FIFO config values
         bmp5_fifo fifo;
 };
+//read the data
 void read_bmp(BMP581 &sens);
 
 #endif

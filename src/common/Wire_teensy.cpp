@@ -1,8 +1,19 @@
-#include "I2c_interface.h"
+#include "I2c_interface.hpp"
+#include "Wire_teensy.hpp"
+
 
 #define PINCONFIG (IOMUXC_PAD_ODE | IOMUXC_PAD_SRE | IOMUXC_PAD_DSE(4) | IOMUXC_PAD_SPEED(1) | IOMUXC_PAD_PKE | IOMUXC_PAD_PUE | IOMUXC_PAD_PUS(3) | IOMUXC_PAD_HYS)
-void  lpi2c1_is(void) { Wire_r.isr(); }
 
+#if defined(ARDUINO_TEENSY_MICROMOD)
+void lpi2c3_is(void) { Wire_1.isr(); }
+void lpi2c4_is(void) { Wire_2.isr(); }
+void lpi2c1_is(void) { Wire_r.isr(); }
+void lpi2c2_is(void) { Wire3.isr(); }
+#else
+void lpi2c3_is(void) { Wire_1.isr(); }
+void lpi2c4_is(void) { Wire_2.isr(); }
+void lpi2c1_is(void) { Wire_r.isr(); }
+#endif
 
 const WIRE_TEENSY::I2C_Hardware_t WIRE_TEENSY::i2c1_hardware = {
 	CCM_CCGR2, CCM_CCGR2_LPI2C1(CCM_CCGR_ON),
@@ -10,7 +21,56 @@ const WIRE_TEENSY::I2C_Hardware_t WIRE_TEENSY::i2c1_hardware = {
 		{{19, 3 | 0x10, &IOMUXC_LPI2C1_SCL_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
 	IRQ_LPI2C1,  &lpi2c1_is
 };
-WIRE_TEENSY Wire_r(IMXRT_LPI2C1_ADDRESS, WIRE_TEENSY::i2c1_hardware);
+
+
+
+PROGMEM
+constexpr WIRE_TEENSY::I2C_Hardware_t WIRE_TEENSY::i2c3_hardware = {
+	CCM_CCGR2, CCM_CCGR2_LPI2C3(CCM_CCGR_ON),
+#if defined(ARDUINO_TEENSY41)
+		{{17, 1 | 0x10, &IOMUXC_LPI2C3_SDA_SELECT_INPUT, 2}, {44, 2 | 0x10, &IOMUXC_LPI2C3_SDA_SELECT_INPUT, 1}},
+		{{16, 1 | 0x10, &IOMUXC_LPI2C3_SCL_SELECT_INPUT, 2}, {45, 2 | 0x10, &IOMUXC_LPI2C3_SCL_SELECT_INPUT, 1}},
+#else  // T4 and ARDUINO_TEENSY_MICROMOD
+		{{17, 1 | 0x10, &IOMUXC_LPI2C3_SDA_SELECT_INPUT, 2}, {36, 2 | 0x10, &IOMUXC_LPI2C3_SDA_SELECT_INPUT, 1}},
+		{{16, 1 | 0x10, &IOMUXC_LPI2C3_SCL_SELECT_INPUT, 2}, {37, 2 | 0x10, &IOMUXC_LPI2C3_SCL_SELECT_INPUT, 1}},
+#endif
+	IRQ_LPI2C3, &lpi2c3_is
+};
+//TwoWire Wire1(&IMXRT_LPI2C3, TwoWire::i2c3_hardware);
+
+PROGMEM
+constexpr WIRE_TEENSY::I2C_Hardware_t WIRE_TEENSY::i2c4_hardware = {
+	CCM_CCGR6, CCM_CCGR6_LPI2C4_SERIAL(CCM_CCGR_ON),
+		{{25, 0 | 0x10, &IOMUXC_LPI2C4_SDA_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
+		{{24, 0 | 0x10, &IOMUXC_LPI2C4_SCL_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
+	IRQ_LPI2C4, &lpi2c4_is
+};
+
+
+
+#if defined(ARDUINO_TEENSY_MICROMOD)
+	WIRE_TEENSY Wire_r(IMXRT_LPI2C1_ADDRESS, WIRE_TEENSY::i2c1_hardware);
+	WIRE_TEENSY Wire_2(IMXRT_LPI2C3_ADDRESS, WIRE_TEENSY::i2c3_hardware);
+	WIRE_TEENSY Wire_1(IMXRT_LPI2C4_ADDRESS, WIRE_TEENSY::i2c4_hardware);
+#else
+	WIRE_TEENSY Wire_r(IMXRT_LPI2C1_ADDRESS, WIRE_TEENSY::i2c1_hardware);
+	WIRE_TEENSY Wire_1(IMXRT_LPI2C3_ADDRESS, WIRE_TEENSY::i2c3_hardware);
+	WIRE_TEENSY Wire_2(IMXRT_LPI2C4_ADDRESS, WIRE_TEENSY::i2c4_hardware);
+#endif
+
+#if defined(ARDUINO_TEENSY_MICROMOD)
+PROGMEM
+constexpr WIRE_TEENSY::I2C_Hardware_t WIRE_TEENSY::i2c2_hardware = {
+	CCM_CCGR2, CCM_CCGR2_LPI2C2(CCM_CCGR_ON),
+		{{41, 2 | 0x10, &IOMUXC_LPI2C2_SDA_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
+		{{40, 2 | 0x10, &IOMUXC_LPI2C2_SCL_SELECT_INPUT, 1}, {0xff, 0xff, nullptr, 0}},
+	IRQ_LPI2C2, &lpi2c2_is
+};
+WIRE_TEENSY Wire3(IMXRT_LPI2C2_ADDRESS, WIRE_TEENSY::i2c2_hardware);
+#endif
+
+
+
 
 //done
 FLASHMEM void WIRE_TEENSY::begin(void)
@@ -22,7 +82,6 @@ FLASHMEM void WIRE_TEENSY::begin(void)
 	IMXRT_LPI2C_t* port = (IMXRT_LPI2C_t*)portAddr;
 	port->MCR = LPI2C_MCR_RST;
 	setClock(100000);
-	// setSDA() & setSCL() may be called before or after begin()
 	configSDApin(sda_pin_index_); // Setup SDA register
 	configSCLpin(scl_pin_index_); // setup SCL register
 }
@@ -152,7 +211,9 @@ void WIRE_TEENSY::setClock(uint32_t frequency)
 	port->MFCR = LPI2C_MFCR_RXWATER(1) | LPI2C_MFCR_TXWATER(1);
 	port->MCR = LPI2C_MCR_MEN;
 }
-//
+
+
+//configure the SCL pin
 FLASHMEM void WIRE_TEENSY::configSDApin(uint8_t i)
 {
 	*(portControlRegister(hardware.sda_pins[i].pin)) = PINCONFIG;
@@ -162,7 +223,7 @@ FLASHMEM void WIRE_TEENSY::configSDApin(uint8_t i)
 	}
 }
 
-//done
+//configure the SCL pin
 FLASHMEM void WIRE_TEENSY::configSCLpin(uint8_t i)
 {
 	*(portControlRegister(hardware.scl_pins[i].pin)) = PINCONFIG;
@@ -218,6 +279,10 @@ uint8_t WIRE_TEENSY::endTransmission(uint8_t sendStop)
 	uint32_t tx_len = txBufferLength;
 	if (!tx_len) return 4; // no address for transmit
 	if (!wait_idle()) return 4;
+
+
+
+
 	uint32_t tx_index = 0; // 0=start, 1=addr, 2-(N-1)=data, N=stop
 	elapsedMillis timeout = 0;
 	while (1) {
@@ -240,6 +305,7 @@ uint8_t WIRE_TEENSY::endTransmission(uint8_t sendStop)
 		}
 		// monitor status
 		uint32_t status = port->MSR; // pg 2884 & 2891
+
 		if (status & LPI2C_MSR_ALF) {
 			port->MCR |= LPI2C_MCR_RTF | LPI2C_MCR_RRF; // clear FIFOs
 			return 4; // we lost bus arbitration to another master
@@ -257,6 +323,7 @@ uint8_t WIRE_TEENSY::endTransmission(uint8_t sendStop)
 			return 2; // NACK (assume address, TODO: how to tell address from data)
 		}
 		if ((status & LPI2C_MSR_PLTF) || timeout > 50) {
+ 
 			port->MCR |= LPI2C_MCR_RTF | LPI2C_MCR_RRF; // clear FIFOs
 			port->MTDR = LPI2C_MTDR_CMD_STOP; // try to send a stop
 			return 4; // clock stretched too long or generic timeout
@@ -375,7 +442,6 @@ void WIRE_TEENSY::begin(uint8_t address)
 	IMXRT_LPI2C_t* port = (IMXRT_LPI2C_t*)portAddr;
 	CCM_CSCDR2 = (CCM_CSCDR2 & ~CCM_CSCDR2_LPI2C_CLK_PODF(63)) | CCM_CSCDR2_LPI2C_CLK_SEL;
 	hardware.clock_gate_register |= hardware.clock_gate_mask;
-	// setSDA() & setSCL() may be called before or after begin()
 	configSDApin(sda_pin_index_); // Setup SDA register
 	configSCLpin(scl_pin_index_); // setup SCL register
 	port->SCR = LPI2C_SCR_RST;

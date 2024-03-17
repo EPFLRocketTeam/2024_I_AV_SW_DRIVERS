@@ -2,8 +2,8 @@
 #ifndef BNO_H
 #define BNO_H
 
+#include "Wire_teensy.hpp"
 
-#include "I2c_interface.h"
 //#include <Wire.h>
 #define BNO055_ADDRESS 0x28
 /** BNO055 ID **/
@@ -20,14 +20,13 @@ struct BNO_data
     double accelZ,magZ,gyroZ,laccelZ;
 };
 
-void read_calibration();
-void print_bno_data();
-void read_data_all(BNO_data* data);
-void read_calibration(BNO_data* data);
-void read_linear(BNO_data* data);
-void read_gyro(BNO_data* data);
-void read_mad(BNO_data* data);
-void read_accel(BNO_data* data);
+void read_linear(BNO_data* data,I2C_INTERFACE *theWire);
+void read_gyro(BNO_data* data,I2C_INTERFACE *theWire);
+void read_mag(BNO_data* data,I2C_INTERFACE *theWire);
+void read_accel(BNO_data* data,I2C_INTERFACE *theWire);
+void read_data_all(BNO_data* data,I2C_INTERFACE *theWire);
+void read_calibration(BNO_data* data,I2C_INTERFACE *theWire);
+void print_bno_data(I2C_INTERFACE *theWire);
 
 class Adafruit_BNO055 {
 public:
@@ -81,7 +80,8 @@ typedef enum {
 } adafruit_bno055_opmode_t;
 
   Adafruit_BNO055(int32_t sensorID = -1, uint8_t address = BNO055_ADDRESS,
-                  WIRE_TEENSY *theWire = &Wire_r);
+                   I2C_INTERFACE *theWire=nullptr);
+
 
   bool begin(adafruit_bno055_opmode_t mode = OPERATION_MODE_NDOF);
   void setMode(adafruit_bno055_opmode_t mode);
@@ -106,7 +106,7 @@ private:
   adafruit_bno055_opmode_t _mode;
 
   uint8_t _addr;
-  WIRE_TEENSY *_wire;
+  I2C_INTERFACE *_wire;
   bool _begun;
   size_t _maxBufferSize =32;
 };

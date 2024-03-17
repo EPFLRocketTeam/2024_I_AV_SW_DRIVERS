@@ -1,8 +1,43 @@
-#include "BNO.h"
+#include "BNO.hpp"
+
+/*
+// Define the address and Wire interface for the BNO055 sensor
+Adafruit_BNO055 bno = Adafruit_BNO055(55, BNO055_ADDRESS, &theWire); // You can change the theWire but be sure to configure it the same way as the theWire
+
+// Begin communication with the Wire interface
+theWire.begin(); 
+
+// Initialize the BNO055 sensor, it should return 0 if initialized successfully
+if (!bno.begin()) {
+    // Handle initialization failure here
+}
+
+// Structure to store BNO055 data
+BNO_data data;
+
+// Function to read and print all BNO055 data to the serial monitor
+void print_bno_data(I2C_INTERFACE *theWire);
+
+// Function to update all BNO055 data
+void read_data_all(BNO_data* data,I2C_INTERFACE *theWire);
+
+// Function to update BNO055 calibration data
+void read_calibration(BNO_data* data,I2C_INTERFACE *theWire);
+
+// Function to update BNO055 linear acceleration data
+void read_linear(BNO_data* data,I2C_INTERFACE *theWire)
+
+// Function to update BNO055 gyro data
+void read_gyro(BNO_data* data,I2C_INTERFACE *theWire);
+
+// Function to update BNO055 magnetometer data
+void read_mag(BNO_data* data,I2C_INTERFACE *theWire);
+
+// Function to update BNO055 acceleration data
+void read_accel(BNO_data* data,I2C_INTERFACE *theWire);
 
 
-
-
+*/
 bool Adafruit_BNO055::begin_(bool addr_detect) {
 
 
@@ -113,7 +148,6 @@ bool Adafruit_BNO055::detected(void) {
 bool Adafruit_BNO055::begin(adafruit_bno055_opmode_t mode) {
   // Start without a detection
   begin_(false);
-
   // can take 850 ms to boot!
   int timeout = 850; // in ms
   while (timeout > 0) {
@@ -190,8 +224,10 @@ bool Adafruit_BNO055::write8(adafruit_bno055_reg_t reg, byte value) {
 }
 
 
+
+                                 
 Adafruit_BNO055::Adafruit_BNO055(int32_t sensorID, uint8_t address,
-                                 WIRE_TEENSY *theWire) {
+                                 I2C_INTERFACE *theWire) {
 
   _sensorID = sensorID;
    _begun = false;
@@ -204,19 +240,19 @@ Adafruit_BNO055::Adafruit_BNO055(int32_t sensorID, uint8_t address,
 
 
 //call for a read of the data
-void print_bno_data(){
+void print_bno_data(I2C_INTERFACE *theWire){
    // Request 18 bytes of data starting from address 0x08
   uint8_t dataBuffer[18]; // Buffer to store the received data
-  Wire_r.beginTransmission(BNO055_ADDRESS); // Replace with your sensor's address
-  Wire_r.write(0x08);
-  Wire_r.endTransmission(false); // Send a restart condition
-  Wire_r.requestFrom(BNO055_ADDRESS, 18);  
-  if(Wire_r.available() == 18) 
+  theWire->beginTransmission(BNO055_ADDRESS); // Replace with your sensor's address
+  theWire->write(0x08);
+  theWire->endTransmission(false); // Send a restart condition
+  theWire->requestFrom(BNO055_ADDRESS, 18);  
+  if(theWire->available() == 18) 
   {
     // Read the data into the dataBuffer
     for (int i = 0; i < 18; i++) 
     {
-      dataBuffer[i] = Wire_r.read();
+      dataBuffer[i] = theWire->read();
     }
 
     // Divide the data into variables 
@@ -270,15 +306,15 @@ void print_bno_data(){
     Serial.println(gyroZ_dps);
   }
   // Read linear accel
-  Wire_r.beginTransmission(BNO055_ADDRESS);
-  Wire_r.write(0x28);//linearaddress
-  Wire_r.endTransmission(false);
-  Wire_r.requestFrom(BNO055_ADDRESS,6); 
-  if (Wire_r.available() == 6) 
+  theWire->beginTransmission(BNO055_ADDRESS);
+  theWire->write(0x28);//linearaddress
+  theWire->endTransmission(false);
+  theWire->requestFrom(BNO055_ADDRESS,6); 
+  if (theWire->available() == 6) 
   {
     for (int i = 0; i < 6; i++) 
     {
-      dataBuffer[i] = Wire_r.read();
+      dataBuffer[i] = theWire->read();
     }
         // Divide the data into variables 
     int16_t laccelX = (dataBuffer[1] << 8) | dataBuffer[0];
@@ -299,14 +335,14 @@ void print_bno_data(){
   }
 
   // Read calibration status
-  Wire_r.beginTransmission(BNO055_ADDRESS);
-  Wire_r.write(0x35);//calibration address
-  Wire_r.endTransmission(false);
-  Wire_r.requestFrom(BNO055_ADDRESS, 1); // Request 1 byte for calibration status
+  theWire->beginTransmission(BNO055_ADDRESS);
+  theWire->write(0x35);//calibration address
+  theWire->endTransmission(false);
+  theWire->requestFrom(BNO055_ADDRESS, 1); // Request 1 byte for calibration status
 
-  if (Wire_r.available()) 
+  if (theWire->available()) 
   {
-    byte calibStatus = Wire_r.read();
+    byte calibStatus = theWire->read();
     // Interpret the calibration status
     int sysCalib = (calibStatus >> 6) & 0x03;
     int gyroCalib = (calibStatus >> 4) & 0x03;
@@ -325,16 +361,17 @@ void print_bno_data(){
   }
 }
 //this funtion reads the calibration and save then in a structure BNO_data
-void read_calibration(BNO_data* data)
+
+void read_calibration(BNO_data* data,I2C_INTERFACE *theWire)
 {
   byte calibStatus;
-  Wire_r.beginTransmission(BNO055_ADDRESS);
-  Wire_r.write(0x35);//calibration address
-  Wire_r.endTransmission(false);
-  Wire_r.requestFrom(BNO055_ADDRESS, 1); // Request 1 byte for calibration status
-  if (Wire_r.available()) 
+  theWire->beginTransmission(BNO055_ADDRESS);
+  theWire->write(0x35);//calibration address
+  theWire->endTransmission(false);
+  theWire->requestFrom(BNO055_ADDRESS, 1); // Request 1 byte for calibration status
+  if (theWire->available()) 
   {
-    calibStatus = Wire_r.read();
+    calibStatus = theWire->read();
     data->sysCalib = (calibStatus >> 6) & 0x03;
     data->gyroCalib = (calibStatus >> 4) & 0x03;
     data->accelCalib = (calibStatus >> 2) & 0x03;
@@ -343,19 +380,19 @@ void read_calibration(BNO_data* data)
 
 }
 //this funtion reads the all the data and save then in a structure BNO_data
-void read_data_all(BNO_data* data)
+void read_data_all(BNO_data* data,I2C_INTERFACE *theWire)
 {
   uint8_t dataBuffer[18]; 
-  Wire_r.beginTransmission(BNO055_ADDRESS); 
-  Wire_r.write(0x08);
-  Wire_r.endTransmission(false); 
-  Wire_r.requestFrom(BNO055_ADDRESS, 18);  
-  if(Wire_r.available() == 18) 
+  theWire->beginTransmission(BNO055_ADDRESS); 
+  theWire->write(0x08);
+  theWire->endTransmission(false); 
+  theWire->requestFrom(BNO055_ADDRESS, 18);  
+  if(theWire->available() == 18) 
   {
     // Read the data into the dataBuffer
     for (int i = 0; i < 18; i++) 
     {
-      dataBuffer[i] = Wire_r.read();
+      dataBuffer[i] = theWire->read();
     }
 
     // Divide the data into variables 
@@ -388,15 +425,15 @@ void read_data_all(BNO_data* data)
     data->gyroZ = gyroZ / gyroScale;
 
   }
-  Wire_r.beginTransmission(BNO055_ADDRESS);
-  Wire_r.write(0x28);//linear_address
-  Wire_r.endTransmission(false);
-  Wire_r.requestFrom(BNO055_ADDRESS,6); 
-  if (Wire_r.available() == 6) 
+  theWire->beginTransmission(BNO055_ADDRESS);
+  theWire->write(0x28);//linear_address
+  theWire->endTransmission(false);
+  theWire->requestFrom(BNO055_ADDRESS,6); 
+  if (theWire->available() == 6) 
   {
     for (int i = 0; i < 6; i++) 
     {
-      dataBuffer[i] = Wire_r.read();
+      dataBuffer[i] = theWire->read();
     }
         // Divide the data into variables 
     int16_t accelX = (dataBuffer[1] << 8) | dataBuffer[0];
@@ -411,19 +448,19 @@ void read_data_all(BNO_data* data)
 
 }
 
-void read_accel(BNO_data* data)
+void read_accel(BNO_data* data,I2C_INTERFACE *theWire)
 {
   uint8_t dataBuffer[6]; // Buffer to store the received data
-  Wire_r.beginTransmission(BNO055_ADDRESS); 
-  Wire_r.write(0x08);
-  Wire_r.endTransmission(false); // Send a restart condition
-  Wire_r.requestFrom(BNO055_ADDRESS, 6);  
-  if(Wire_r.available() == 6)
+  theWire->beginTransmission(BNO055_ADDRESS); 
+  theWire->write(0x08);
+  theWire->endTransmission(false); // Send a restart condition
+  theWire->requestFrom(BNO055_ADDRESS, 6);  
+  if(theWire->available() == 6)
   {
     // Read the data into the dataBuffer
     for (int i = 0; i < 6; i++) 
     {
-      dataBuffer[i] = Wire_r.read();
+      dataBuffer[i] = theWire->read();
     }
     int16_t accelX = (dataBuffer[1] << 8) | dataBuffer[0];
     int16_t accelY = (dataBuffer[3] << 8) | dataBuffer[2];
@@ -437,19 +474,19 @@ void read_accel(BNO_data* data)
 }
 
 
-void read_mad(BNO_data* data)
+void read_mag(BNO_data* data,I2C_INTERFACE *theWire)
 {
   uint8_t dataBuffer[6]; // Buffer to store the received data
-  Wire_r.beginTransmission(BNO055_ADDRESS); 
-  Wire_r.write(0X0E);
-  Wire_r.endTransmission(false); // Send a restart condition
-  Wire_r.requestFrom(BNO055_ADDRESS, 6);  
-  if(Wire_r.available() == 6)
+  theWire->beginTransmission(BNO055_ADDRESS); 
+  theWire->write(0X0E);
+  theWire->endTransmission(false); // Send a restart condition
+  theWire->requestFrom(BNO055_ADDRESS, 6);  
+  if(theWire->available() == 6)
   {
     // Read the data into the dataBuffer
     for (int i = 0; i < 6; i++) 
     {
-      dataBuffer[i] = Wire_r.read();
+      dataBuffer[i] = theWire->read();
     }
     int16_t magX  = (dataBuffer[1] << 8) | dataBuffer[0];
     int16_t magY  = (dataBuffer[3] << 8) | dataBuffer[2];
@@ -462,19 +499,19 @@ void read_mad(BNO_data* data)
   }
 }
 
-void read_gyro(BNO_data* data)
+void read_gyro(BNO_data* data,I2C_INTERFACE *theWire)
 {
   uint8_t dataBuffer[6]; // Buffer to store the received data
-  Wire_r.beginTransmission(BNO055_ADDRESS);
-  Wire_r.write(0X14);
-  Wire_r.endTransmission(false); // Send a restart condition
-  Wire_r.requestFrom(BNO055_ADDRESS, 6);  
-  if(Wire_r.available() == 6)
+  theWire->beginTransmission(BNO055_ADDRESS);
+  theWire->write(0X14);
+  theWire->endTransmission(false); // Send a restart condition
+  theWire->requestFrom(BNO055_ADDRESS, 6);  
+  if(theWire->available() == 6)
   {
     // Read the data into the dataBuffer
     for (int i = 0; i < 6; i++) 
     {
-      dataBuffer[i] = Wire_r.read();
+      dataBuffer[i] = theWire->read();
     }
     int16_t gyroX   = (dataBuffer[1] << 8) | dataBuffer[0];
     int16_t gyroY  = (dataBuffer[3] << 8) | dataBuffer[2];
@@ -488,18 +525,18 @@ void read_gyro(BNO_data* data)
 }
 
 
-void read_linear(BNO_data* data)
+void read_linear(BNO_data* data,I2C_INTERFACE *theWire)
 {
   uint8_t dataBuffer[6]; // Buffer to store the received data
-  Wire_r.beginTransmission(BNO055_ADDRESS);
-  Wire_r.write(0x28);//linear_address
-  Wire_r.endTransmission(false);
-  Wire_r.requestFrom(BNO055_ADDRESS,6); 
-  if (Wire_r.available() == 6) 
+  theWire->beginTransmission(BNO055_ADDRESS);
+  theWire->write(0x28);//linear_address
+  theWire->endTransmission(false);
+  theWire->requestFrom(BNO055_ADDRESS,6); 
+  if (theWire->available() == 6) 
   {
     for (int i = 0; i < 6; i++) 
     {
-      dataBuffer[i] = Wire_r.read();
+      dataBuffer[i] = theWire->read();
     }
         // Divide the data into variables 
     int16_t accelX = (dataBuffer[1] << 8) | dataBuffer[0];
