@@ -98,6 +98,7 @@ struct lora_packet_t {
 	};
 };
 
+/* MUST SET UP INTERRUPTS & INIT PINS */
 class LoRaClass {
 public:
 	LoRaClass(uint8_t addr, SPI_Interface* spi, const spi_settings_t& spiSettings, uint32_t rst, uint32_t irq, uint32_t minIntervalMs);

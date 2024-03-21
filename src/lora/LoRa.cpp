@@ -17,21 +17,6 @@ LoRaClass::LoRaClass(uint8_t addr, SPI_Interface *spi, const spi_settings_t &spi
 
 bool LoRaClass::begin(long frequency) {
 
-	/*// setup pins
-	pinMode(_ss, OUTPUT);
-	// set SS high
-	digitalWrite(_ss, HIGH);
-
-	if (_reset != -1) {
-		pinMode(_reset, OUTPUT);
-
-		// perform reset
-		digitalWrite(_reset, LOW);
-		delay(10);
-		digitalWrite(_reset, HIGH);
-		delay(10);
-	}*/
-
 	// start SPI
 	_spi->begin(_spiSettings);
 
