@@ -142,7 +142,7 @@ public:
 	void enableLowDataRateOptimize();
 	void disableLowDataRateOptimize();
 	bool isTransmitting();
-	int parsePacket(int size);
+	bool parsePacket(int size);
 	int packetRssi();
 	float packetSnr();
 	long packetFrequencyError();

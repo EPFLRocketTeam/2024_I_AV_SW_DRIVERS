@@ -207,18 +207,15 @@ bool LoRaClass::isTransmitting() {
 	return false;
 }
 
-int LoRaClass::parsePacket(int size) {
-	/* MODIFY, prefixed packet size */
+bool LoRaClass::parsePacket(int size) {
+	if(size != LORA_PACKET_SIZE)
+		return false;
+
 	int packetLength = 0;
 	int irqFlags = readRegister(LoRaRegisters::REG_IRQ_FLAGS);
 
-	if (size > 0) {
-		implicitHeaderMode();
-
-		writeRegister(LoRaRegisters::REG_PAYLOAD_LENGTH, size & 0xff);
-	} else {
-		explicitHeaderMode();
-	}
+	implicitHeaderMode();
+	writeRegister(LoRaRegisters::REG_PAYLOAD_LENGTH, LORA_PACKET_SIZE & 0xff);
 
 	// clear IRQ's
 	writeRegister(LoRaRegisters::REG_IRQ_FLAGS, irqFlags);
@@ -249,7 +246,7 @@ int LoRaClass::parsePacket(int size) {
 		writeRegister(LoRaRegisters::REG_OP_MODE, MODE_LONG_RANGE_MODE | MODE_RX_SINGLE);
 	}
 
-	return packetLength;
+	return true;
 }
 
 int LoRaClass::packetRssi() {
