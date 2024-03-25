@@ -1,6 +1,32 @@
 #ifndef MAXON_H
 #define MAXON_H
 
+#include <cstdint>
+
+
+/***************************************************************************************************************************
+*                                                   TYPE DEFINITIONS                                                       *
+****************************************************************************************************************************/
+
+// 8 bits unsigned integer
+typedef uint8_t BYTE;
+
+// 16 bits unsigned integer
+typedef uint16_t WORD;
+
+// 32 bits unsigned integer
+typedef uint32_t DWORD;
+
+// 32 bits signed integer
+typedef int32_t BOOL;
+
+typedef void* HANDLE;
+
+
+/***************************************************************************************************************************
+*                                                   CLASS DEFINITIONS                                                      *
+****************************************************************************************************************************/
+
 
 /*
   The interface for the EPOS 4 controller, containing the functions called by the functions of the MAXON class.
@@ -21,7 +47,7 @@ class EPOS4_Interface {
        - pErrorCode (DWORD*): error information on the executed function
        - return value (HANDLE): handle for communication port access, nonzero if successful, otherwise "0"
     */
-    HANDLE VCS_OpenDevice(char* DeviceName, char* ProtocolStackName, char* InterfaceName, char* PortName, DWORD* pErrorCode);
+    virtual HANDLE VCS_OpenDevice(char* DeviceName, char* ProtocolStackName, char* InterfaceName, char* PortName, DWORD* pErrorCode) = 0;
 
     /*
       VCS_CloseDevice closes the port and releases it for other applications. If no opened ports are available,
@@ -33,7 +59,7 @@ class EPOS4_Interface {
       Return parameters:
        - pErrorCode (DWORD*): error information on the executed function
     */
-    BOOL VCS_CloseDevice(HANDLE KeyHandle, DWORD* pErrorCode);
+    virtual BOOL VCS_CloseDevice(HANDLE KeyHandle, DWORD* pErrorCode) = 0;
 
     /*
       VCS_CloseAllDevices closes all opened ports and releases them for other applications. If no opened 
@@ -43,7 +69,7 @@ class EPOS4_Interface {
        - pErrorCode (DWORD*): error information on the executed function
        - return value (BOOL): nonzero if successful, otherwise "0"
     */
-    BOOL VCS_CloseAllDevices(DWORD* pErrorCode);
+    virtual BOOL VCS_CloseAllDevices(DWORD* pErrorCode) = 0;
 
     /*
       VCS_SetObject writes an object value at the given index and subindex.
@@ -61,8 +87,8 @@ class EPOS4_Interface {
        - pErrorCode (DWORD*): error information on the executed function
        - return value (BOOL): nonzero if successful, otherwise "0"
     */
-    BOOL VCS_SetObject(HANDLE KeyHandle, WORD NodeId, WORD ObjectIndex, BYTE ObjectSubIndex, void* pData, DWORD NbOfBytesToWrite,
-                        DWORD* pNbOfBytesWritten, DWORD* pErrorCode);
+    virtual BOOL VCS_SetObject(HANDLE KeyHandle, WORD NodeId, WORD ObjectIndex, BYTE ObjectSubIndex, void* pData, DWORD NbOfBytesToWrite,
+                        DWORD* pNbOfBytesWritten, DWORD* pErrorCode) = 0;
 
     /*
       VCS_GetObject reads an object value at the given index and subindex.
@@ -80,8 +106,8 @@ class EPOS4_Interface {
        - pErrorCode (DWORD*): error information on the executed function
        - return value (BOOL): nonzeron if successful, otherwise "0"
     */
-    BOOL VCS_GetObject(HANDLE KeyHandle, WORD NodeId, WORD ObjectIndex, BYTE ObjectSubIndex, void* pData, DWORD NbOfBytesToRead,
-                        DWORD* pNbOfBytesRead, DWORD* pErrorCode);
+    virtual BOOL VCS_GetObject(HANDLE KeyHandle, WORD NodeId, WORD ObjectIndex, BYTE ObjectSubIndex, void* pData, DWORD NbOfBytesToRead,
+                        DWORD* pNbOfBytesRead, DWORD* pErrorCode) = 0;
 
     /*
       VCS_Restore restores all default parameters.
@@ -94,7 +120,7 @@ class EPOS4_Interface {
        - pErrorCode (DWORD*): error information on the executed function
        - return value (BOOL): nonzero if successful, otherwise "0"
     */
-    BOOL VCS_Restore(HANDLE KeyHandle, WORD NodeId, DWORD* pErrorCode);
+    virtual BOOL VCS_Restore(HANDLE KeyHandle, WORD NodeId, DWORD* pErrorCode) = 0;
 
     /*
       VCS_Store stores all parameters.
@@ -107,7 +133,7 @@ class EPOS4_Interface {
        - pErrorCode (DWORD*): error information on the executed function
        - return value (BOOL): nonzero if successful, otherwise "0"
     */
-    BOOL VCS_Store(HANDLE KeyHandle, WORD NodeId, DWORD* pErrorCode);
+    virtual BOOL VCS_Store(HANDLE KeyHandle, WORD NodeId, DWORD* pErrorCode) = 0;
 
     /*
       VCS_GetDcMotorParameter reads all DC motor parameters.
@@ -123,8 +149,8 @@ class EPOS4_Interface {
        - pErrorCode (DWORD*): error information on the executed function
        - return value (BOOL): nonzero if successful, otherwise "0"
     */
-    BOOL VCS_GetDcMotorParameter(HANDLE KeyHandle, WORD NodeId, WORD* pNominalCurrent, WORD* pMaxOutputCurrent,
-                                    WORD* pThermalTimeConstant, DWORD* pErrorCode);
+    virtual BOOL VCS_GetDcMotorParameter(HANDLE KeyHandle, WORD NodeId, WORD* pNominalCurrent, WORD* pMaxOutputCurrent,
+                                    WORD* pThermalTimeConstant, DWORD* pErrorCode) = 0;
 
     /*
       VCS_GetEcMotorParameter reads all EC motor parameters.
@@ -140,8 +166,8 @@ class EPOS4_Interface {
        - pErrorCode (DWORD*): error information on the executed function
        - return value (BOOL): nonzero if successful, otherwise "0"
     */
-    BOOL VCS_GetEcMotorParameter(HANDLE KeyHandle, WORD NodeId, WORD* pNominalCurrent, WORD* pMaxOutputCurrent,
-                                    WORD* pThermalTimeConstant, BYTE* pNbOfPolePairs, DWORD* pErrorCode);
+    virtual BOOL VCS_GetEcMotorParameter(HANDLE KeyHandle, WORD NodeId, WORD* pNominalCurrent, WORD* pMaxOutputCurrent,
+                                    WORD* pThermalTimeConstant, BYTE* pNbOfPolePairs, DWORD* pErrorCode) = 0;
 
     /*
       VCS_SetOperationMode sets the operation mode.
@@ -155,7 +181,7 @@ class EPOS4_Interface {
        - pErrorCode (DWORD*): error information on the executed function
        - return value (BOOL): nonzero if successful, otherwise "0"
     */
-    BOOL VCS_SetOperationMode(HANDLE KeyHandle, WORD NodeId, __int8 Mode, DWORD* pErrorCode);
+    virtual BOOL VCS_SetOperationMode(HANDLE KeyHandle, WORD NodeId, __int8 Mode, DWORD* pErrorCode) = 0;
 
     /*
       VCS_SetState reads the actual state machine state.
@@ -169,7 +195,7 @@ class EPOS4_Interface {
        - pErrorCode (DWORD*): error information on the executed function
        - return value (BOOL): nonzero if successful, otherwise "0"
     */
-    BOOL VCS_SetState(HANDLE KeyHandle, WORD NodeId, WORD State, DWORD* pErrorCode);
+    virtual BOOL VCS_SetState(HANDLE KeyHandle, WORD NodeId, WORD State, DWORD* pErrorCode) = 0;
 
 };
 
@@ -184,7 +210,7 @@ class MAXON {
         /*
           Constructor
         */
-        MAXON();
+        MAXON(EPOS4_Interface* interface);
 
 
 
