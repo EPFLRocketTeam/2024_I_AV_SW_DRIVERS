@@ -5,7 +5,7 @@
 
 
 /***************************************************************************************************************************
-*                                                   TYPE DEFINITIONS                                                       *
+*                                                     TYPE DEFINITIONS                                                     *
 ****************************************************************************************************************************/
 
 // 8 bits unsigned integer
@@ -20,11 +20,38 @@ typedef uint32_t DWORD;
 // 32 bits signed integer
 typedef int32_t BOOL;
 
+// void pointer
 typedef void* HANDLE;
 
 
 /***************************************************************************************************************************
-*                                                   CLASS DEFINITIONS                                                      *
+*                                                         CONSTANTS                                                         *
+****************************************************************************************************************************/
+
+// The device name given to the VCS_OpenDevice function.
+#define DEVICE_NAME "EPOS4"
+
+// The maximum length for the protocol stack name given to the VCS_OpenDevice function.
+#define MAX_PROTOCOL_STACK_NAME_LENGTH 100
+
+// The maximum length for the interface name given to the VCS_OpenDevice function.
+#define MAX_INTERFACE_NAME_LENGTH 100
+
+// The maximum length for the port name given to the VCS_OpenDevice function.
+#define MAX_PORT_NAME_LENGTH 100
+
+// The value corresponding to the Profile Position Mode.
+#define OMD_PROFILE_POSITION_MODE 1
+
+// The value corresponding to the Profile Velocity Mode.
+#define OMD_PROFILE_VELOCITY_MODE 3
+
+// The value corresponding to the Homing Mode.
+#define OMD_HOMING_MODE 6
+
+
+/***************************************************************************************************************************
+*                                                      CLASS DEFINITIONS                                                   *
 ****************************************************************************************************************************/
 
 
@@ -33,13 +60,15 @@ typedef void* HANDLE;
 */
 class EPOS4_Interface {
 
+  public:
+
     /*
       VCS_OpenDevice opens the port to send and receive commands. Ports can be RS232, USB, and CANopen interfaces.
 
       Parameters:
        - DeviceName (char*): name of connected device (EPOS, EPOS2 or EPOS4)
        - ProtocolStackName (char*): name of used communication protocol (MAXON_RS232, MAXON SERIAL V2 or CANopen)
-       - InterfaceName (char*): name of interface (RS232, USB,  IXXAT_<<BoardName>> <<DeviceNumber>>, 
+       - InterfaceName (char*): name of interface (RS232, USB, IXXAT_<<BoardName>> <<DeviceNumber>>, 
           Kvaser_<<BoardName>> <<DeviceNumber>>, NI_<<BoardName>> <<DeviceNumber>> or Vector_<<BoardName>> <<DeviceNumber>>)
        - PortName (char*): name of port (COM1, COM2, USB0, USB1, CAN0, CAN1, ...)
 
@@ -48,6 +77,60 @@ class EPOS4_Interface {
        - return value (HANDLE): handle for communication port access, nonzero if successful, otherwise "0"
     */
     virtual HANDLE VCS_OpenDevice(char* DeviceName, char* ProtocolStackName, char* InterfaceName, char* PortName, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_GetProtocolStackNameSelection returns all available protocol stack names.
+
+      Parameters:
+       - DeviceName (char*): device name
+       - StartOfSelection (BOOL): true to get the first selection string and false to get the next selection string
+       - MaxStrSize (WORD): reserved memory size for the name
+
+      Return parameters:
+       - pProtocolStackNameSel (char*): pointer to available protocol stack name
+       - pEndOfSelection (BOOL): true if no more string available and false otherwise
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_GetProtocolStackNameSelection(char* DeviceName, BOOL StartOfSelection, char* pProtocolStackNameSel, WORD MaxStrSize,
+                                              BOOL* pEndOfSelection, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_GetInterfaceNameSelection returns all available interface names.
+
+      Parameters:
+       - DeviceName (char*): device name
+       - ProtocolStackName (char*): protocol stack name
+       - StartOfSelection (BOOL): true to get the first selection string, false to get the next selection string
+       - MaxStrSize (WORD): reserved memory size for the interface name
+
+      Return parameters:
+       - pInterfaceNameSel (char*): name of interface
+       - pEndOfSelection (BOOL*): true if no more string available, false otherwise
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_GetInterfaceNameSelection(char* DeviceName, char* ProtocolStackName, BOOL StartOfSelection, char* pInterfaceNameSel,
+                                              WORD MaxStrSize, BOOL* pEndOfSelection, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_GetPortNameSelection returns all available port names.
+
+      Parameters:
+       - DeviceName (char*): device name
+       - ProtocolStackName (char*): protocol stack name
+       - InterfaceName (char*): interface name
+       - StartOfSelection (BOOL): true to get the first selection string, false to get the next selection string
+       - MaxStrSize (WORD): reserved memory size for the port name
+
+      Return parameters:
+       - pPortSel (char*): pointer to port name
+       - pEndOfSelection (BOOL*): true if no more string available, false otherwise
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_GetPortNameSelection(char* DeviceName, char* ProtocolStackName, char* InterfaceName, BOOL StartOfSelection,
+                                    char* pPortSel, WORD MaxStrSize, BOOL* pEndOfSelection, DWORD* pErrorCode) = 0;
 
     /*
       VCS_CloseDevice closes the port and releases it for other applications. If no opened ports are available,
@@ -184,7 +267,7 @@ class EPOS4_Interface {
     virtual BOOL VCS_SetOperationMode(HANDLE KeyHandle, WORD NodeId, __int8 Mode, DWORD* pErrorCode) = 0;
 
     /*
-      VCS_SetState reads the actual state machine state.
+      VCS_SetState sets the actual state machine state.
 
       Parameters:
        - KeyHandle (HANDLE): handle for port access
@@ -196,6 +279,51 @@ class EPOS4_Interface {
        - return value (BOOL): nonzero if successful, otherwise "0"
     */
     virtual BOOL VCS_SetState(HANDLE KeyHandle, WORD NodeId, WORD State, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_MoveToPosition starts movement with position profile to target position.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+       - TargetPosition (long): target position
+       - Absolute (BOOL): true to start an absolute and false to start a relative movement
+       - Immediately (BOOL): true to start immediately and false to wait for the end of the last positioning
+
+      Return parameters:
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_MoveToPosition(HANDLE KeyHandle, WORD NodeId, long TargetPosition, BOOL Absolute,
+                                BOOL Immediately, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_GetPositionIs returns the position actual value.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+
+      Return parameters:
+       - pPositionIs (long*): position actual value
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_GetPositionIs(HANDLE KeyHandle, WORD NodeId, long* pPositionIs, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_GetVelocityIs reads the velocity actual value.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+
+      Return parameters:
+       - pVelocityIs (long*): velocity actual value
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_GetVelocityIs(HANDLE KeyHandle, WORD NodeId, long* pVelocityIs, DWORD* pErrorCode) = 0;
 
 };
 
@@ -288,23 +416,23 @@ class Maxon {
         Gets the current angle of the maxon motor.
 
         Return parameters:
-         - return value (double): the current angle, in degrees
+         - return value (long): the current angle, in degrees
       */
-      double GetCurrentAngle(void);
+      long GetCurrentAngle(void);
 
       /*
         Gets the current angular velocity of the maxon motor.
 
         Return parameters:
-         - return value (double): the current angular velocity, in revolutions per minute
+         - return value (long): the current angular velocity, in revolutions per minute
       */
-      double GetCurrentVelocity(void);
+      long GetCurrentVelocity(void);
 
 
     private:
 
       // the EPOS 4 interface used to control the maxon motor
-      EPOS4_Interface* interface;
+      EPOS4_Interface* Interface;
 
       // the handle for port access
       HANDLE KeyHandle;
