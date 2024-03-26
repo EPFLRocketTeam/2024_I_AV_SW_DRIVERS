@@ -20,7 +20,7 @@ typedef uint32_t DWORD;
 // 32 bits signed integer
 typedef int32_t BOOL;
 
-// void pointer
+// TODO: void pointer?
 typedef void* HANDLE;
 
 
@@ -281,6 +281,72 @@ class EPOS4_Interface {
     virtual BOOL VCS_SetState(HANDLE KeyHandle, WORD NodeId, WORD State, DWORD* pErrorCode) = 0;
 
     /*
+      VCS_SetPositionProfile sets the position profile parameters.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+       - ProfileVelocity (DWORD): position profile velocity
+       - ProfileAcceleration (DWORD): position profile acceleration
+       - ProfileDeceleration (DWORD): position profile deceleration
+
+      Return parameters:
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_SetPositionProfile(HANDLE KeyHandle, WORD NodeId, DWORD ProfileVelocity, DWORD ProfileAcceleration, 
+                                DWORD ProfileDeceleration, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_GetPositionProfile returns the position profile parameters.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+
+      Return parameters:
+       - pProfileVelocity (DWORD*): position profile velocity
+       - pProfileAcceleration (DWORD*): position profile acceleration
+       - pProfileDeceleration (DWORD*): position profile deceleration
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_GetPositionProfile(HANDLE KeyHandle, WORD NodeId, DWORD* pProfileVelocity, DWORD* pProfileAcceleration, 
+                                DWORD* pProfileDeceleration, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_SetVelocityProfile sets the velocity profile parameters.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node Id of the addressed device
+       - ProfileAcceleration (DWORD): velocity profile acceleration
+       - ProfileDeceleration (DWORD): velocity profile deceleration
+
+      Return parameters:
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_SetVelocityProfile(HANDLE KeyHandle, WORD NodeId, DWORD ProfileAcceleration, 
+                                    DWORD ProfileDeceleration, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_GetVelocityProfile returns the velocity profile parameters.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+
+      Return parameters;
+       - pProfileAcceleration (DWORD*): velocity profile acceleration
+       - pProfileDeceleration (DWORD*): velocity profile deceleration
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_GetVelocityProfile(HANDLE KeyHandle, WORD NodeId, DWORD* pProfileAcceleration, 
+                                    DWORD* pProfileDeceleration, DWORD* pErrorCode) = 0;
+
+    /*
       VCS_MoveToPosition starts movement with position profile to target position.
 
       Parameters:
@@ -296,6 +362,20 @@ class EPOS4_Interface {
     */
     virtual BOOL VCS_MoveToPosition(HANDLE KeyHandle, WORD NodeId, long TargetPosition, BOOL Absolute,
                                 BOOL Immediately, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_MoveWithVelocity starts the movement with velocity profile to target velocity.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+       - TargetVelocity (long): target velocity
+
+      Return parameters:
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_MoveWithVelocity(HANDLE KeyHandle, WORD NodeId, long TargetVelocity, DWORD* pErrorCode) = 0;
 
     /*
       VCS_GetPositionIs returns the position actual value.

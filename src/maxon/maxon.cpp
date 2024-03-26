@@ -1,4 +1,5 @@
 #include "inc/maxon/maxon.hpp"
+#include <cstdlib>
 
 
 /*
@@ -28,6 +29,7 @@ Maxon::Maxon(EPOS4_Interface* InterfaceParam) {
     char portName[MAX_PORT_NAME_LENGTH];
     if (!Interface->VCS_GetPortNameSelection(DEVICE_NAME, protocolStackName, interfaceName, true, portName, MAX_PORT_NAME_LENGTH, &endOfSelection, &errorCode)) return;
 
+    // open the port to send and receive commands and save the handle
     KeyHandle = Interface->VCS_OpenDevice(DEVICE_NAME, protocolStackName, interfaceName, portName, &errorCode);
     if (KeyHandle <= 0) {
         KeyHandle = NULL;
@@ -35,7 +37,7 @@ Maxon::Maxon(EPOS4_Interface* InterfaceParam) {
     }
 
     // TODO: find the nodeID (VCS_FindDeviceCommunicationSettings?)
-    WORD* NodeId = 0;
+    NodeId = 0;
 };
 
 /*
@@ -48,6 +50,12 @@ Maxon::Maxon(EPOS4_Interface* InterfaceParam) {
 */
 void Maxon::Rotate(double Angle) {
     if (KeyHandle == NULL) return;
+    long currAngle = GetCurrentAngle();
+    if (currAngle + Angle > 15) {
+        Angle = 15 - currAngle;
+    } else if (currAngle + Angle < -15) {
+        Angle = -15 - currAngle;
+    }
 
     // set the operation mode to the profile position mode
     DWORD errorCode = 0;
@@ -55,7 +63,7 @@ void Maxon::Rotate(double Angle) {
 
     // TODO: compute the target position
     long targetPos = 0;
-    if (!Interface->VCS_MoveToPosition(KeyHandle, NodeId, targetPos, true, true, &errorCode)) return;
+    Interface->VCS_MoveToPosition(KeyHandle, NodeId, targetPos, true, true, &errorCode);
 };
 
 /*
@@ -69,8 +77,31 @@ void Maxon::Rotate(double Angle) {
    - Time (double): the time the motor will take to rotate to the target, in seconds
 */
 void Maxon::Rotate(double Angle, double Time) {
+    if (KeyHandle == NULL) return;
+    long currAngle = GetCurrentAngle();
+    if (currAngle + Angle > 15) {
+        Angle = 15 - currAngle;
+    } else if (currAngle + Angle < -15) {
+        Angle = -15 - currAngle;
+    }
 
+    // set the operation mode to the profile position mode
+    DWORD errorCode = 0;
+    if (!Interface->VCS_SetOperationMode(KeyHandle, NodeId, OMD_PROFILE_POSITION_MODE, &errorCode)) return;
 
+    // get the current position profile parameters
+    DWORD velocity = 0;
+    DWORD acceleration = 0;
+    DWORD deceleration = 0;
+    if (!Interface->VCS_GetPositionProfile(KeyHandle, NodeId, &velocity, &acceleration, &deceleration, &errorCode)) return;
+
+    // update the parameters for the target to be reached in time Time
+    velocity = abs(Angle) / Time;
+    if (!Interface->VCS_SetPositionProfile(KeyHandle, NodeId, velocity, acceleration, deceleration, &errorCode)) return;
+
+    // TODO: compute the target position
+    long targetPos = 0;
+    Interface->VCS_MoveToPosition(KeyHandle, NodeId, targetPos, true, true, &errorCode);
 };
 
 /*
@@ -83,6 +114,11 @@ void Maxon::Rotate(double Angle, double Time) {
 */
 void Maxon::RotateFromRef(double Angle) {
     if (KeyHandle == NULL) return;
+    if (Angle > 15) {
+        Angle = 15;
+    } else if (Angle < -15) {
+        Angle = -15;
+    }
 
     // set the operation mode to the profile position mode
     DWORD errorCode = 0;
@@ -90,8 +126,7 @@ void Maxon::RotateFromRef(double Angle) {
 
     // TODO: compute the target position
     long targetPos = 0;
-    if (!Interface->VCS_MoveToPosition(KeyHandle, NodeId, targetPos, false, true, &errorCode)) return;
-
+    Interface->VCS_MoveToPosition(KeyHandle, NodeId, targetPos, false, true, &errorCode);
 };
 
 /*
@@ -104,8 +139,31 @@ void Maxon::RotateFromRef(double Angle) {
    - Time (double): the time the motor will take to rotate to the target, in seconds
 */
 void Maxon::RotateFromRef(double Angle, double Time) {
+    if (KeyHandle == NULL) return;
+    if (Angle > 15) {
+        Angle = 15;
+    } else if (Angle < -15) {
+        Angle = -15;
+    }
 
+    // set the operation mode to the profile position mode
+    DWORD errorCode = 0;
+    if (!Interface->VCS_SetOperationMode(KeyHandle, NodeId, OMD_PROFILE_POSITION_MODE, &errorCode)) return;
 
+    // get the current position profile parameters
+    DWORD velocity = 0;
+    DWORD acceleration = 0;
+    DWORD deceleration = 0;
+    if (!Interface->VCS_GetPositionProfile(KeyHandle, NodeId, &velocity, &acceleration, &deceleration, &errorCode)) return;
+
+    // update the parameters for the target to be reached in time Time
+    long currAngle = GetCurrentAngle();
+    velocity = abs(currAngle - Angle) / Time;
+    if (!Interface->VCS_SetPositionProfile(KeyHandle, NodeId, velocity, acceleration, deceleration, &errorCode)) return;
+
+    // TODO: compute the target position
+    long targetPos = 0;
+    Interface->VCS_MoveToPosition(KeyHandle, NodeId, targetPos, false, true, &errorCode);
 };
 
 /*
@@ -116,8 +174,17 @@ void Maxon::RotateFromRef(double Angle, double Time) {
    - Velocity (double): the angular velocity used to rotate the motor, in revolutions per minute
 */
 void Maxon::RotateWithVelocity(double Velocity) {
-    
+    if (KeyHandle == NULL) return;
 
+    // TODO: limit the angle
+
+    // set the operation mode to the profile velocity mode
+    DWORD errorCode = 0;
+    if (!Interface->VCS_SetOperationMode(KeyHandle, NodeId, OMD_PROFILE_VELOCITY_MODE, &errorCode)) return;
+    
+    // update the target velocity to the given velocity (reduction rate is 130:1)
+    long targetVelocity = Velocity * 130.0;
+    Interface->VCS_MoveWithVelocity(KeyHandle, NodeId, targetVelocity, &errorCode);
 };
 
 /*
@@ -130,8 +197,31 @@ void Maxon::RotateWithVelocity(double Velocity) {
    - Time (double): the time the motor will take to reach the target, in seconds
 */
 void Maxon::RotateWithVelocity(double Velocity, double Time) {
+    if (KeyHandle == NULL) return;
 
+    // TODO: limit the angle
 
+    // set the operation mode to the profile velocity mode
+    DWORD errorCode = 0;
+    if (!Interface->VCS_SetOperationMode(KeyHandle, NodeId, OMD_PROFILE_VELOCITY_MODE, &errorCode)) return;
+
+    // get the current velocity profile parameters
+    DWORD acceleration = 0;
+    DWORD deceleration = 0;
+    if (!Interface->VCS_GetVelocityProfile(KeyHandle, NodeId, &acceleration, &deceleration, &errorCode)) return;
+
+    // update the acceleration/deceleration for the target to be reached in time Time
+    long currVelocity = GetCurrentVelocity();
+    if (currVelocity < Velocity) {
+        acceleration = (Velocity - currVelocity) / Time;
+    } else if (currVelocity > Velocity) {
+        deceleration = (currVelocity - Velocity) / Time;
+    }
+    if (!Interface->VCS_SetVelocityProfile(KeyHandle, NodeId, acceleration, deceleration, &errorCode)) return;
+    
+    // update the target velocity to the given velocity (reduction rate is 130:1)
+    long targetVelocity = Velocity * 130.0;
+    Interface->VCS_MoveWithVelocity(KeyHandle, NodeId, targetVelocity, &errorCode);
 };
 
 /*
@@ -139,6 +229,8 @@ void Maxon::RotateWithVelocity(double Velocity, double Time) {
   anymore. This function must be called everytime we are done using the Maxon object.
 */
 void Maxon::EndCommunication(void) {
+    if (KeyHandle == NULL) return;
+
     DWORD errorCode = 0;
     Interface->VCS_CloseDevice(KeyHandle, &errorCode);
     KeyHandle = NULL;
