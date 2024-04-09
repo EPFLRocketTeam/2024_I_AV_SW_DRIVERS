@@ -3,7 +3,7 @@
 
 
 /*
-  The constructor.
+  A constructor.
 
   Parameters:
    - Interface (EPOS4_Interface*): the interface used to control the board
@@ -31,6 +31,38 @@ Maxon::Maxon(EPOS4_Interface* InterfaceParam) {
 
     // open the port to send and receive commands and save the handle
     KeyHandle = Interface->VCS_OpenDevice(DEVICE_NAME, protocolStackName, interfaceName, portName, &errorCode);
+    if (KeyHandle <= 0) {
+        KeyHandle = NULL;
+        return;
+    }
+
+    // TODO: find the nodeID (VCS_FindDeviceCommunicationSettings?)
+    NodeId = 0;
+};
+
+/*
+  A constructor.
+
+  Parameters:
+   - Interface (EPOS4_Interface*): the interface used to control the board
+   - ProtocolStackName (char*): name of used communication protocol (MAXON_RS232, MAXON SERIAL V2 or CANopen)
+   - InterfaceName (char*): name of interface (RS232, USB, IXXAT_<<BoardName>> <<DeviceNumber>>, 
+        Kvaser_<<BoardName>> <<DeviceNumber>>, NI_<<BoardName>> <<DeviceNumber>> or Vector_<<BoardName>> <<DeviceNumber>>)
+   - PortName (char*): name of port (COM1, COM2, USB0, USB1, CAN0, CAN1, ...)
+*/
+Maxon::Maxon(EPOS4_Interface* InterfaceParam, char* ProtocolStackName, char* InterfaceName, char* PortName) {
+
+    // initialize the attributes
+    Interface = InterfaceParam;
+    KeyHandle = NULL;
+    NodeId = 0;
+    DWORD errorCode = 0;
+
+    // check the arguments
+    if (!ProtocolStackName || !InterfaceName || !PortName) return;
+
+    // open the port to send and receive commands and save the handle
+    KeyHandle = Interface->VCS_OpenDevice(DEVICE_NAME, ProtocolStackName, InterfaceName, PortName, &errorCode);
     if (KeyHandle <= 0) {
         KeyHandle = NULL;
         return;

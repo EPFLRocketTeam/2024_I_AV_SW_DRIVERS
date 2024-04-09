@@ -2,6 +2,7 @@
 #define MAXON_H
 
 #include <cstdint>
+#include <string>
 
 
 /***************************************************************************************************************************
@@ -416,12 +417,24 @@ class Maxon {
     public:
 
       /*
-        The constructor.
+        A constructor.
 
         Parameters:
          - Interface (EPOS4_Interface*): the interface used to control the board
       */
       Maxon(EPOS4_Interface* Interface);
+
+      /*
+        A constructor.
+
+        Parameters:
+         - Interface (EPOS4_Interface*): the interface used to control the board
+         - ProtocolStackName (char*): name of used communication protocol (MAXON_RS232, MAXON SERIAL V2 or CANopen)
+         - InterfaceName (char*): name of interface (RS232, USB, IXXAT_<<BoardName>> <<DeviceNumber>>, 
+            Kvaser_<<BoardName>> <<DeviceNumber>>, NI_<<BoardName>> <<DeviceNumber>> or Vector_<<BoardName>> <<DeviceNumber>>)
+         - PortName (char*): name of port (COM1, COM2, USB0, USB1, CAN0, CAN1, ...)
+      */
+      Maxon(EPOS4_Interface* Interface, char* ProtocolStackName, char* InterfaceName, char* PortName);
 
       /*
         Rotates the maxon motor by a given angle. If the target is more than a 15° angle from the
