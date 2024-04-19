@@ -93,8 +93,8 @@ void Maxon::Rotate(double Angle) {
     DWORD errorCode = 0;
     if (!Interface->VCS_SetOperationMode(KeyHandle, NodeId, OMD_PROFILE_POSITION_MODE, &errorCode)) return;
 
-    // TODO: compute the target position
-    long targetPos = 0;
+    // compute the target position
+    long targetPos = Angle * 103.0 * 4096.0 / 360.0;
     Interface->VCS_MoveToPosition(KeyHandle, NodeId, targetPos, true, true, &errorCode);
 };
 
@@ -131,8 +131,8 @@ void Maxon::Rotate(double Angle, double Time) {
     velocity = abs(Angle) / Time;
     if (!Interface->VCS_SetPositionProfile(KeyHandle, NodeId, velocity, acceleration, deceleration, &errorCode)) return;
 
-    // TODO: compute the target position
-    long targetPos = 0;
+    // compute the target position
+    long targetPos = Angle * 103.0 * 4096.0 / 360.0;
     Interface->VCS_MoveToPosition(KeyHandle, NodeId, targetPos, true, true, &errorCode);
 };
 
@@ -156,8 +156,8 @@ void Maxon::RotateFromRef(double Angle) {
     DWORD errorCode = 0;
     if (!Interface->VCS_SetOperationMode(KeyHandle, NodeId, OMD_PROFILE_POSITION_MODE, &errorCode)) return;
 
-    // TODO: compute the target position
-    long targetPos = 0;
+    // compute the target position
+    long targetPos = Angle * 103.0 * 4096.0 / 360.0;
     Interface->VCS_MoveToPosition(KeyHandle, NodeId, targetPos, false, true, &errorCode);
 };
 
@@ -193,8 +193,8 @@ void Maxon::RotateFromRef(double Angle, double Time) {
     velocity = abs(currAngle - Angle) / Time;
     if (!Interface->VCS_SetPositionProfile(KeyHandle, NodeId, velocity, acceleration, deceleration, &errorCode)) return;
 
-    // TODO: compute the target position
-    long targetPos = 0;
+    // compute the target position
+    long targetPos = Angle * 103.0 * 4096.0 / 360.0;
     Interface->VCS_MoveToPosition(KeyHandle, NodeId, targetPos, false, true, &errorCode);
 };
 
@@ -284,7 +284,7 @@ long Maxon::GetCurrentAngle(void) {
     if (!Interface->VCS_GetPositionIs(KeyHandle, NodeId, &position, &errorCode)) return 0.;
 
     // TODO: compute the corresponding angle in degrees
-
+    position = position * 360.0 / (103.0 * 4096.0);
     return position;
 };
 
@@ -302,8 +302,8 @@ long Maxon::GetCurrentVelocity(void) {
     long velocity = 0;
     if (!Interface->VCS_GetVelocityIs(KeyHandle, NodeId, &velocity, &errorCode)) return 0.;
 
-    // compute the actual angular velocity (the reduction rate is 130:1)
-    velocity = velocity / 130.0;
+    // compute the actual angular velocity (the reduction rate is 103:1)
+    velocity = velocity / 103.0;
 
     return velocity;
 };
