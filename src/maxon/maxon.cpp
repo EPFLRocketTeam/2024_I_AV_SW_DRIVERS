@@ -13,7 +13,7 @@ Maxon::Maxon(EPOS4_Interface* InterfaceParam) {
     // initialize the attributes
     Interface = InterfaceParam;
     KeyHandle = NULL;
-    NodeId = 0;
+    NodeId = 1;
 
     // determine the protocol stack name
     BOOL endOfSelection = false;
