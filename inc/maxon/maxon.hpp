@@ -50,6 +50,24 @@ typedef void* HANDLE;
 // The value corresponding to the Homing Mode.
 #define OMD_HOMING_MODE 6
 
+// The default reference angle (in degrees)
+#define DEFAULT_REF_ANGLE 0
+
+// The default resolution in angle (in pulse per turn)
+#define DEFAULT_RESOLUTION 4096
+
+// The default maximum angle for the motors (in degrees)
+#define DEFAULT_MAX_ANGLE 15
+
+// The reduction value (the reduction rate is 103:1)
+#define REDUCTION 103.0
+
+// The angle of a complete turn (in degrees)
+#define TURN 360.0
+
+// The multiplicative factor to convert seconds to minutes
+#define SEC_TO_MIN 1.0 / 60.0
+
 
 /***************************************************************************************************************************
 *                                                      CLASS DEFINITIONS                                                   *
@@ -406,6 +424,95 @@ class EPOS4_Interface {
     */
     virtual BOOL VCS_GetVelocityIs(HANDLE KeyHandle, WORD NodeId, long* pVelocityIs, DWORD* pErrorCode) = 0;
 
+    /*
+      VCS_ActivateHomingMode changes the operational mode to “homing mode”.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+
+      Return parameters:
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_ActivateHomingMode(HANDLE KeyHandle, WORD NodeId, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_GetHomingParameter reads all homing parameters. The parameter units depend on (position, 
+      velocity, acceleration) notation index.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+
+      Return parameters:
+       - pHomingAcceleration (DWORD*): acceleration for homing profile
+       - pSpeedSwitch (DWORD*): speed during search for switch
+       - pSpeedIndex (DWORD*): speed during search for index signal
+       - pHomeOffset (long*): home offset after homing
+       - pCurrentThreshold (DWORD*): current threshold for homing methods -1, -2, -3 and -4
+       - pHomePosition (long*): home position value
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_GetHomingParameter(HANDLE KeyHandle, WORD NodeId, DWORD* pHomingAcceleration, 
+                                      DWORD* pSpeedSwitch, DWORD* pSpeedIndex, long* pHomeOffset, WORD* pCurrentThreshold, 
+                                      long* pHomePosition, DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_SetHomingParameter writes all homing parameters. The parameter units depend on (position, 
+      velocity, acceleration) notation index.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+       - HomingAcceleration (DWORD): acceleration for homing profile
+       - SpeedSwitch (DWORD): speed during search for switch
+       - SpeedIndex (DWORD): speed during search for index signal
+       - HomeOffset (long): home offset after homing
+       - CurrentThreshold (DWORD): current threshold for homing methods -1, -2, -3 and -4
+       - HomePosition (long): used to assign the present position as homing position
+
+      Return parameters:
+       - pErrorCode (DWORD*): error informaion on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_SetHomingParameter(HANDLE KeyHandle, WORD NodeId, DWORD HomingAcceleration, DWORD SpeedSwitch, 
+                                      DWORD SpeedIndex, long HomeOffset, WORD CurrentThreshold, long HomePosition, 
+                                      DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_GetIncEncoderParameter reads the incremental encoder parameters.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+
+      Return parameters:
+       - pEncoderResolution (DWORD): encoder pulse number (pulse per turn)
+       - pInvertedPolarity (BOOL): position sensor polarity
+       - pErrorCode (DWORD*): error information on the executed function
+       - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_GetIncEncoderParameter(HANDLE KeyHandle, WORD NodeId, DWORD* pEncoderResolution, BOOL* pInvertedPolarity, 
+                                      DWORD* pErrorCode) = 0;
+
+    /*
+      VCS_SetIncEncoderParameter writes the incremental encoder parameters.
+
+      Parameters:
+       - KeyHandle (HANDLE): handle for port access
+       - NodeId (WORD): node ID of the addressed device
+       - EncoderResolution (DWORD): encoder pulse number (pulse per turn)
+       - InvertedPolarity (BOOL): position sensor polarity
+
+      Return parameters:
+      - pErrorCode (DWORD*): error information on the executed function
+      - return value (BOOL): nonzero if successful, otherwise "0"
+    */
+    virtual BOOL VCS_SetIncEncoderParameter(HANDLE KeyHandle, WORD NodeId, DWORD EncoderResolution, BOOL InvertedPolarity, 
+                                      DWORD* pErrorCode) = 0;
+
 };
 
 
@@ -421,8 +528,11 @@ class Maxon {
 
         Parameters:
          - Interface (EPOS4_Interface*): the interface used to control the board
+        
+        Return parameters:
+         - pError (bool*): false if successful, otherwise true
       */
-      Maxon(EPOS4_Interface* Interface);
+      Maxon(EPOS4_Interface* Interface, bool* pError);
 
       /*
         A constructor.
@@ -433,13 +543,16 @@ class Maxon {
          - InterfaceName (char*): name of interface (RS232, USB, IXXAT_<<BoardName>> <<DeviceNumber>>, 
             Kvaser_<<BoardName>> <<DeviceNumber>>, NI_<<BoardName>> <<DeviceNumber>> or Vector_<<BoardName>> <<DeviceNumber>>)
          - PortName (char*): name of port (COM1, COM2, USB0, USB1, CAN0, CAN1, ...)
+
+        Return parameters:
+         - pError (bool*): false if successful, otherwise true
       */
-      Maxon(EPOS4_Interface* Interface, char* ProtocolStackName, char* InterfaceName, char* PortName);
+      Maxon(EPOS4_Interface* Interface, char* ProtocolStackName, char* InterfaceName, char* PortName, bool* pError);
 
       /*
-        Rotates the maxon motor by a given angle. If the target is more than a 15° angle from the
-        reference, the motor will only rotate to the 15° angle. And if the target is less than the
-        -15° angle from the reference, it will only rotate to the -15° angle.
+        Rotates the maxon motor by a given angle. If the target is more than the maximum angle away from the
+        reference, the motor will only rotate to the maximum angle. And if the target is less than the opposite
+        of the maximum angle from the reference, it will only rotate to the opposite of the maximum angle.
 
         Parameters:
          - Angle (double): the angle to rotate the motor, in degrees (can be positive or negative)
@@ -447,10 +560,10 @@ class Maxon {
       void Rotate(double Angle);
 
       /*
-        Rotates the maxon motor by a given angle in a given time. If the target is more than a 15°
-        angle from the reference, the motor will only rotate to the 15° angle. And if the target is
-        less than the -15° angle from the reference, it will only rotate to the -15° angle. If the
-        time given is negative or null, nothing will happen.
+        Rotates the maxon motor by a given angle in a given time. If the target is more than the maximum
+        angle away from the reference, the motor will only rotate to the maximum angle. And if the target is
+        less than the opposite of the maximum angle away from the reference, it will only rotate to the opposite
+        of the maximum angle. If the time given is negative or null, nothing will happen.
 
         Parameters:
          - Angle (double): the angle to rotate the motor, in degrees (can be positive or negative)
@@ -459,9 +572,9 @@ class Maxon {
       void Rotate(double Angle, double Time);
 
       /*
-        Rotates the maxon motor to a given angle from the reference. If the angle is more than 15°,
-        the motor will only rotate to 15°. And if it is less than -15°, the motor will only rotate
-        to the -15° angle.
+        Rotates the maxon motor to a given angle from the reference. If the angle is more than the maximum angle,
+        the motor will only rotate to the maximum angle. And if it is less than the opposite of the maximum angle, 
+        the motor will only rotate to the opposite of the maximum angle.
 
         Parameters:
          - Angle (double): the angle to which the motor will rotate, in degrees (can be positive or negative)
@@ -470,8 +583,9 @@ class Maxon {
 
       /*
         Rotates the maxon motor to a given angle from the reference in a given time. If the angle
-        is more than 15°, the motor will only rotate to 15°. And if it is less than -15°, the motor
-        will only rotate to the -15° angle. If the time given is negative or null, nothing will happen.
+        is more than the maximum angle, the motor will only rotate to the maximum angle. And if it 
+        is less than the opposite of the maximum angle, the motor will only rotate to the opposite
+        of the maximum angle. If the time given is negative or null, nothing will happen.
 
         Parameters:
          - Angle (double): the angle to which the motor will rotate, in degrees (can be positive or negative)
@@ -521,6 +635,57 @@ class Maxon {
       */
       long GetCurrentVelocity(void);
 
+      /*
+        Get the current reference angle (home/neutral position).
+
+        Return parameters:
+         - return value (double): the current reference angle, in degrees
+      */
+      double GetReferenceAngle(void);
+
+      /*
+        Set the current reference angle to a new value (home/neutral position).
+
+        Parameters:
+         - Angle (double): the new reference angle, in degrees
+      */
+      void SetReferenceAngle(double Angle);
+
+      /*
+        Get the current resolution in angle.
+
+        Return parameters:
+         - return value (int): the current resolution in angle, in pulse per turn
+      */
+      int GetResolution(void);
+
+      /*
+        Set the current resolution in angle to a new value.
+
+        Parameters:
+         - NewResolution (int): the new resolution in angle, in pulse per turn
+      */
+      void SetResolution(int NewResolution);
+
+      /*
+        Get the current maximum angle for the motors (with respect to the neutral position).
+
+        Return parameters:
+         - return value (double): current maximum angle, in degrees
+      */
+      double GetMaxAngle(void);
+
+      /*
+        Set the current maximum angle for the motors to a new value (with respect to the neutral position).
+
+        Parameters:
+         - Angle (double): the new maximum angle, in degrees
+      */
+      void SetMaxAngle(double Angle);
+
+
+      // TODO: Get/Set the resolution in angular velocity
+
 
     private:
 
@@ -533,6 +698,14 @@ class Maxon {
       // the node ID of the addressed device
       WORD NodeId;
 
+      // the current reference angle (in degrees)
+      double RefAngle;
+
+      // the current resolution in angle (in pulse per turn)
+      int Resolution;
+
+      // the current maximum angle for the motors (in degrees)
+      double MaxAngle;
 };
 
 #endif
