@@ -1,15 +1,10 @@
-#ifndef GNSS_H
-#define GNSS_H
+#ifndef BNO_H
+#define BNO_H
 
 
 #include "GNSS_DEF.hpp"
 
 
-
-
-
-
-static int turut(0);
 
 class GNSSDeviceBus
 {

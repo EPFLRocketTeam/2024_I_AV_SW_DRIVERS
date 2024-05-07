@@ -197,7 +197,7 @@ void setup()
   Serial.begin(115200);
   Serial.println(F("PointPerfect testing"));
 
-  Wire.begin(); //Start I2C
+  Wire_r.begin(); //Start I2C
 
   //myGNSS.enableDebugging(); // Uncomment this line to enable debug messages on Serial
 

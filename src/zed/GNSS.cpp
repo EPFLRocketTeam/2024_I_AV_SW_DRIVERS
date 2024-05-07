@@ -2,6 +2,10 @@
 
 
 
+
+//UBX_NAV_PVT_data_t
+
+
 // Data is stored inside a UBX_NAV_PVT_data_t inside of the UBX_NAV_PVT_t in the SFE_UBLOX_GNSS instance.
 // We have 3 options:
 // 1. Point-perfect for only the ZED. We need WiFi for it to work.
@@ -669,8 +673,7 @@ bool SFE_UBLOX_GNSS::initPacketUBXNAVHPPOSLLH()
   {
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("initPacketUBXNAVHPPOSLLH: RAM alloc failed!"));
+      Serial.println(F("initPacketUBXNAVHPPOSLLH: RAM alloc failed!"));
 #endif
     return (false);
   }
@@ -728,8 +731,7 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
     storedID = requestedID;
   }
 
-  turut=turut+1;
-//Serial.write(incoming); // Echo this byte to the serial port
+ // Serial.write(incoming); // Echo this byte to the serial port
 
   if ((currentSentence == SFE_UBLOX_SENTENCE_TYPE_NONE) || (currentSentence == SFE_UBLOX_SENTENCE_TYPE_NMEA))
   {
@@ -819,14 +821,10 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
             if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
             {
-              turut=turut+1;
-//Serial.print(F("process: autoLookup returned ZERO maxPayload!! Class: 0x"));
-              turut=turut+1;
-//Serial.print(packetBuf.cls, HEX);
-              turut=turut+1;
-//Serial.print(F(" ID: 0x"));
-              turut=turut+1;
-//Serial.println(packetBuf.id, HEX);
+              Serial.print(F("process: autoLookup returned ZERO maxPayload!! Class: 0x"));
+              Serial.print(packetBuf.cls, HEX);
+              Serial.print(F(" ID: 0x"));
+              Serial.println(packetBuf.id, HEX);
             }
 #endif
           }
@@ -835,8 +833,7 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
             if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
             {
-              turut=turut+1;
-//Serial.println(F("process: memory is already allocated for payloadAuto! Deleting..."));
+              Serial.println(F("process: memory is already allocated for payloadAuto! Deleting..."));
             }
 #endif
             delete[] payloadAuto; // Created with new[]
@@ -852,16 +849,11 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
             if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
             {
-              turut=turut+1;
-//Serial.print(F("process: memory allocation failed for \"automatic\" message: Class: 0x"));
-              turut=turut+1;
-//Serial.print(packetBuf.cls, HEX);
-              turut=turut+1;
-//Serial.print(F(" ID: 0x"));
-              turut=turut+1;
-//Serial.println(packetBuf.id, HEX);
-              turut=turut+1;
-//Serial.println(F("process: \"automatic\" message could overwrite data"));
+              Serial.print(F("process: memory allocation failed for \"automatic\" message: Class: 0x"));
+              Serial.print(packetBuf.cls, HEX);
+              Serial.print(F(" ID: 0x"));
+              Serial.println(packetBuf.id, HEX);
+              Serial.println(F("process: \"automatic\" message could overwrite data"));
             }
 #endif
             // The RAM allocation failed so fall back to using incomingUBX (usually packetCfg) even though we risk overwriting data
@@ -881,22 +873,14 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
             if (_printDebug == true)
             {
-              turut=turut+1;
-//Serial.print(F("process: incoming \"automatic\" message: Class: 0x"));
-              turut=turut+1;
-//Serial.print(packetBuf.cls, HEX);
-              turut=turut+1;
-//Serial.print(F(" ID: 0x"));
-              turut=turut+1;
-//Serial.print(packetBuf.id, HEX);
-              turut=turut+1;
-//Serial.print(F(" logBecauseAuto:"));
-              turut=turut+1;
-//Serial.print(logBecauseAuto);
-              turut=turut+1;
-//Serial.print(F(" logBecauseEnabled:"));
-              turut=turut+1;
-//Serial.println(logBecauseEnabled);
+              Serial.print(F("process: incoming \"automatic\" message: Class: 0x"));
+              Serial.print(packetBuf.cls, HEX);
+              Serial.print(F(" ID: 0x"));
+              Serial.print(packetBuf.id, HEX);
+              Serial.print(F(" logBecauseAuto:"));
+              Serial.print(logBecauseAuto);
+              Serial.print(F(" logBecauseEnabled:"));
+              Serial.println(logBecauseEnabled);
             }
 #endif
           }
@@ -932,14 +916,10 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
         if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
         {
-          turut=turut+1;
-//Serial.print(F("process: ZERO LENGTH packet received: Class: 0x"));
-          turut=turut+1;
-//Serial.print(packetBuf.cls, HEX);
-          turut=turut+1;
-//Serial.print(F(" ID: 0x"));
-          turut=turut+1;
-//Serial.println(packetBuf.id, HEX);
+          Serial.print(F("process: ZERO LENGTH packet received: Class: 0x"));
+          Serial.print(packetBuf.cls, HEX);
+          Serial.print(F(" ID: 0x"));
+          Serial.println(packetBuf.id, HEX);
         }
 #endif
         // If length is zero (!) this will be the first byte of the checksum so record it
@@ -989,18 +969,12 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
           if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
           {
-            turut=turut+1;
-//Serial.print(F("process: ACK received with .len != 2: Class: 0x"));
-            turut=turut+1;
-//Serial.print(packetBuf.payload[0], HEX);
-            turut=turut+1;
-//Serial.print(F(" ID: 0x"));
-            turut=turut+1;
-//Serial.print(packetBuf.payload[1], HEX);
-            turut=turut+1;
-//Serial.print(F(" len: "));
-            turut=turut+1;
-//Serial.println(packetBuf.len);
+            Serial.print(F("process: ACK received with .len != 2: Class: 0x"));
+            Serial.print(packetBuf.payload[0], HEX);
+            Serial.print(F(" ID: 0x"));
+            Serial.print(packetBuf.payload[1], HEX);
+            Serial.print(F(" len: "));
+            Serial.println(packetBuf.len);
           }
 #endif
         }
@@ -1060,8 +1034,7 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
       {
         // if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
         // {
-        //   turut=turut+1;
-//Serial.println(F("process: non-auto NMEA message"));
+        //   Serial.println(F("process: non-auto NMEA message"));
         // }
       }
 
@@ -1097,13 +1070,10 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
           *lengthPtr = *lengthPtr + 1;        // Increment the length
           if (*lengthPtr == nmeaMaxLength)
           {
-            #ifndef SFE_UBLOX_REDUCED_PROG_MEM
             if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
             {
-              turut=turut+1;
-//Serial.println(F("process: NMEA buffer is full!"));
+              Serial.println(F("process: NMEA buffer is full!"));
             }
-            #endif
           }
         }
       }
@@ -1191,38 +1161,24 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
           }
           else
           {
-            #ifndef SFE_UBLOX_REDUCED_PROG_MEM
             if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
             {
-              turut=turut+1;
-//Serial.print(F("process: NMEA checksum fail (2)! Expected "));
-              turut=turut+1;
-//Serial.print("suii");
-              turut=turut+1;
-//Serial.write(expectedChecksum1);
-              turut=turut+1;
-//Serial.write(expectedChecksum2);
-              turut=turut+1;
-//Serial.print(F(" Got "));
-              turut=turut+1;
-//Serial.write(*(workingNMEAPtr + charsChecked));
-              turut=turut+1;
-//Serial.write(*(workingNMEAPtr + charsChecked + 1));
-              turut=turut+1;
-//Serial.println();
-              #endif
+              Serial.print(F("process: NMEA checksum fail (2)! Expected "));
+              Serial.write(expectedChecksum1);
+              Serial.write(expectedChecksum2);
+              Serial.print(F(" Got "));
+              Serial.write(*(workingNMEAPtr + charsChecked));
+              Serial.write(*(workingNMEAPtr + charsChecked + 1));
+              Serial.println();
             }
           }
         }
         else
         {
-          #ifndef SFE_UBLOX_REDUCED_PROG_MEM
           if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
           {
-            turut=turut+1;
-//Serial.println(F("process: NMEA checksum fail (1)!"));
+            Serial.println(F("process: NMEA checksum fail (1)!"));
           }
-          #endif
         }
       }
 #endif
@@ -1251,13 +1207,10 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
           {
             storeFileBytes(_storageNMEA->data, _storageNMEA->length); // Add NMEA to the file buffer
           }
-          #ifndef SFE_UBLOX_REDUCED_PROG_MEM
           else if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
           {
-            turut=turut+1;
-//Serial.println(F("process: _storageNMEA checksum fail!"));
+            Serial.println(F("process: _storageNMEA checksum fail!"));
           }
-          #endif
         }
       }
       currentSentence = SFE_UBLOX_SENTENCE_TYPE_NONE; // All done!
@@ -1317,19 +1270,14 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
           if (_printDebug == true)
           {
-            turut=turut+1;
-//Serial.print(F("process: valid RTCM message type: "));
-            turut=turut+1;
-//Serial.print(messageType);
+            Serial.print(F("process: valid RTCM message type: "));
+            Serial.print(messageType);
             if (messageType == 4072)
             {
-              turut=turut+1;
-//Serial.print(F("_"));
-              turut=turut+1;
-//Serial.print(messageSubType);
+              Serial.print(F("_"));
+              Serial.print(messageSubType);
             }
-            turut=turut+1;
-//Serial.println(F(""));
+            Serial.println(F(""));
           }
 #endif
 
@@ -1416,13 +1364,10 @@ void SFE_UBLOX_GNSS::process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t r
         }
         else
         {
-          #ifndef SFE_UBLOX_REDUCED_PROG_MEM
           if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
           {
-            turut=turut+1;
-//Serial.println(F("process: RTCM checksum fail!"));
+            Serial.println(F("process: RTCM checksum fail!"));
           }
-          #endif
         }
       }
     }
@@ -1743,14 +1688,10 @@ void SFE_UBLOX_GNSS::processUBX(uint8_t incoming, ubxPacket *incomingUBX, uint8_
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
       if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
       {
-        turut=turut+1;
-//Serial.print(F("processUBX: autoLookup returned ZERO maxPayload!! Class: 0x"));
-        turut=turut+1;
-//Serial.print(incomingUBX->cls, HEX);
-        turut=turut+1;
-//Serial.print(F(" ID: 0x"));
-        turut=turut+1;
-//Serial.println(incomingUBX->id, HEX);
+        Serial.print(F("processUBX: autoLookup returned ZERO maxPayload!! Class: 0x"));
+        Serial.print(incomingUBX->cls, HEX);
+        Serial.print(F(" ID: 0x"));
+        Serial.println(incomingUBX->id, HEX);
       }
 #endif
     }
@@ -1820,14 +1761,10 @@ void SFE_UBLOX_GNSS::processUBX(uint8_t incoming, ubxPacket *incomingUBX, uint8_
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("processUBX: NACK received: Requested Class: 0x"));
-          turut=turut+1;
-//Serial.print(incomingUBX->payload[0], HEX);
-          turut=turut+1;
-//Serial.print(F(" Requested ID: 0x"));
-          turut=turut+1;
-//Serial.println(incomingUBX->payload[1], HEX);
+          Serial.print(F("processUBX: NACK received: Requested Class: 0x"));
+          Serial.print(incomingUBX->payload[0], HEX);
+          Serial.print(F(" Requested ID: 0x"));
+          Serial.println(incomingUBX->payload[1], HEX);
         }
 #endif
       }
@@ -1841,14 +1778,10 @@ void SFE_UBLOX_GNSS::processUBX(uint8_t incoming, ubxPacket *incomingUBX, uint8_
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("processUBX: incoming \"automatic\" message: Class: 0x"));
-          turut=turut+1;
-//Serial.print(incomingUBX->cls, HEX);
-          turut=turut+1;
-//Serial.print(F(" ID: 0x"));
-          turut=turut+1;
-//Serial.println(incomingUBX->id, HEX);
+          Serial.print(F("processUBX: incoming \"automatic\" message: Class: 0x"));
+          Serial.print(incomingUBX->cls, HEX);
+          Serial.print(F(" ID: 0x"));
+          Serial.println(incomingUBX->id, HEX);
         }
 #endif
       }
@@ -1856,33 +1789,26 @@ void SFE_UBLOX_GNSS::processUBX(uint8_t incoming, ubxPacket *incomingUBX, uint8_
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
       if (_printDebug == true)
       {
-        turut=turut+1;
-//Serial.print(F("Incoming: Size: "));
-        turut=turut+1;
-//Serial.print(incomingUBX->len);
-        turut=turut+1;
-//Serial.print(F(" Received: "));
+        Serial.print(F("Incoming: Size: "));
+        Serial.print(incomingUBX->len);
+        Serial.print(F(" Received: "));
         printPacket(incomingUBX);
 
         if (incomingUBX->valid == SFE_UBLOX_PACKET_VALIDITY_VALID)
         {
-          turut=turut+1;
-//Serial.println(F("packetCfg now valid"));
+          Serial.println(F("packetCfg now valid"));
         }
         if (packetAck.valid == SFE_UBLOX_PACKET_VALIDITY_VALID)
         {
-          turut=turut+1;
-//Serial.println(F("packetAck now valid"));
+          Serial.println(F("packetAck now valid"));
         }
         if (incomingUBX->classAndIDmatch == SFE_UBLOX_PACKET_VALIDITY_VALID)
         {
-          turut=turut+1;
-//Serial.println(F("packetCfg classAndIDmatch"));
+          Serial.println(F("packetCfg classAndIDmatch"));
         }
         if (packetAck.classAndIDmatch == SFE_UBLOX_PACKET_VALIDITY_VALID)
         {
-          turut=turut+1;
-//Serial.println(F("packetAck classAndIDmatch"));
+          Serial.println(F("packetAck classAndIDmatch"));
         }
       }
 #endif
@@ -1910,6 +1836,7 @@ void SFE_UBLOX_GNSS::processUBX(uint8_t incoming, ubxPacket *incomingUBX, uint8_
       {
         incomingUBX->classAndIDmatch = SFE_UBLOX_PACKET_VALIDITY_NOT_VALID; // If we have a match, set the classAndIDmatch flag to not valid
       }
+
       if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
       {
         // Drive an external pin to allow for easier logic analyzation
@@ -1921,27 +1848,17 @@ void SFE_UBLOX_GNSS::processUBX(uint8_t incoming, ubxPacket *incomingUBX, uint8_
         }
 
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
-        turut=turut+1;
-//Serial.print(F("Checksum failed:"));
-        turut=turut+1;
-//Serial.print(F(" checksumA: "));
-        turut=turut+1;
-//Serial.print(incomingUBX->checksumA);
-        turut=turut+1;
-//Serial.print(F(" checksumB: "));
-        turut=turut+1;
-//Serial.print(incomingUBX->checksumB);
+        Serial.print(F("Checksum failed:"));
+        Serial.print(F(" checksumA: "));
+        Serial.print(incomingUBX->checksumA);
+        Serial.print(F(" checksumB: "));
+        Serial.print(incomingUBX->checksumB);
 
-        turut=turut+1;
-//Serial.print(F(" rollingChecksumA: "));
-        turut=turut+1;
-//Serial.print(rollingChecksumA);
-        turut=turut+1;
-//Serial.print(F(" rollingChecksumB: "));
-        turut=turut+1;
-//Serial.print(rollingChecksumB);
-        turut=turut+1;
-//Serial.println();
+        Serial.print(F(" rollingChecksumA: "));
+        Serial.print(rollingChecksumA);
+        Serial.print(F(" rollingChecksumB: "));
+        Serial.print(rollingChecksumB);
+        Serial.println();
 #endif
       }
     }
@@ -1989,19 +1906,13 @@ void SFE_UBLOX_GNSS::processUBX(uint8_t incoming, ubxPacket *incomingUBX, uint8_
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
     {
       if (overrun)
-        turut=turut+1;
-//Serial.print(F("processUBX: buffer overrun detected!"));
+        Serial.print(F("processUBX: buffer overrun detected!"));
       else
-        turut=turut+1;
-//Serial.print(F("processUBX: counter hit maximum_payload_size + 6!"));
-      turut=turut+1;
-//Serial.print(F(" activePacketBuffer: "));
-      turut=turut+1;
-//Serial.print(activePacketBuffer);
-      turut=turut+1;
-//Serial.print(F(" maximum_payload_size: "));
-      turut=turut+1;
-//Serial.println(maximum_payload_size);
+        Serial.print(F("processUBX: counter hit maximum_payload_size + 6!"));
+      Serial.print(F(" activePacketBuffer: "));
+      Serial.print(activePacketBuffer);
+      Serial.print(F(" maximum_payload_size: "));
+      Serial.println(maximum_payload_size);
     }
 #endif
   }
@@ -2427,8 +2338,7 @@ bool SFE_UBLOX_GNSS::initPacketUBXNAVPVT()
   {
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("initPacketUBXNAVPVT: RAM alloc failed!"));
+      Serial.println(F("initPacketUBXNAVPVT: RAM alloc failed!"));
 #endif
     return (false);
   }
@@ -2823,8 +2733,7 @@ bool SFE_UBLOX_GNSS::storeFileBytes(uint8_t *theBytes, uint16_t numBytes)
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
     if (_printDebug == true)
     {
-      turut=turut+1;
-//Serial.println(F("storeFileBytes: file buffer not available!"));
+      Serial.println(F("storeFileBytes: file buffer not available!"));
     }
 #endif
     return (false);
@@ -2836,8 +2745,7 @@ bool SFE_UBLOX_GNSS::storeFileBytes(uint8_t *theBytes, uint16_t numBytes)
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
     {
-      turut=turut+1;
-//Serial.println(F("storeFileBytes: insufficient space available! Data will be lost!"));
+      Serial.println(F("storeFileBytes: insufficient space available! Data will be lost!"));
     }
 #endif
     return (false);
@@ -2972,77 +2880,56 @@ void SFE_UBLOX_GNSS::printPacket(ubxPacket *packet, bool alwaysPrintPayload)
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
   if (_printDebug == true)
   {
-    turut=turut+1;
-//Serial.print(F("CLS:"));
+    Serial.print(F("CLS:"));
     if (packet->cls == UBX_CLASS_NAV) // 1
-      turut=turut+1;
-//Serial.print(F("NAV"));
+      Serial.print(F("NAV"));
     else if (packet->cls == UBX_CLASS_ACK) // 5
-      turut=turut+1;
-//Serial.print(F("ACK"));
+      Serial.print(F("ACK"));
     else if (packet->cls == UBX_CLASS_CFG) // 6
-      turut=turut+1;
-//Serial.print(F("CFG"));
+      Serial.print(F("CFG"));
     else if (packet->cls == UBX_CLASS_MON) // 0x0A
-      turut=turut+1;
-//Serial.print(F("MON"));
+      Serial.print(F("MON"));
     else
     {
-      turut=turut+1;
-//Serial.print(F("0x"));
-      turut=turut+1;
-//Serial.print(packet->cls, HEX);
+      Serial.print(F("0x"));
+      Serial.print(packet->cls, HEX);
     }
 
-    turut=turut+1;
-//Serial.print(F(" ID:"));
+    Serial.print(F(" ID:"));
     if (packet->cls == UBX_CLASS_NAV && packet->id == UBX_NAV_PVT)
-      turut=turut+1;
-//Serial.print(F("PVT"));
+      Serial.print(F("PVT"));
     else if (packet->cls == UBX_CLASS_CFG && packet->id == UBX_CFG_CFG)
-      turut=turut+1;
-//Serial.print(F("SAVE"));
+      Serial.print(F("SAVE"));
     else
     {
-      turut=turut+1;
-//Serial.print(F("0x"));
-      turut=turut+1;
-//Serial.print(packet->id, HEX);
+      Serial.print(F("0x"));
+      Serial.print(packet->id, HEX);
     }
 
-    turut=turut+1;
-//Serial.print(F(" Len: 0x"));
-    turut=turut+1;
-//Serial.print(packet->len, HEX);
+    Serial.print(F(" Len: 0x"));
+    Serial.print(packet->len, HEX);
 
     if (printPayload)
     {
-      turut=turut+1;
-//Serial.print(F(" Payload:"));
+      Serial.print(F(" Payload:"));
 
       for (uint16_t x = 0; x < packet->len; x++)
       {
-        turut=turut+1;
-//Serial.print(F(" "));
-        turut=turut+1;
-//Serial.print(packet->payload[x], HEX);
+        Serial.print(F(" "));
+        Serial.print(packet->payload[x], HEX);
       }
     }
     else
     {
-      turut=turut+1;
-//Serial.print(F(" Payload: IGNORED"));
+      Serial.print(F(" Payload: IGNORED"));
     }
-    turut=turut+1;
-//Serial.println();
+    Serial.println();
   }
 #else
   if (_printDebug == true)
   {
-    turut=turut+1;
-//Serial.print(F("Len: 0x"));
-    turut=turut+1;
-//Serial.print(packet->len, HEX);
+    Serial.print(F("Len: 0x"));
+    Serial.print(packet->len, HEX);
   }
 #endif
 }
@@ -4386,8 +4273,7 @@ void SFE_UBLOX_GNSS::processUBXpacket(ubxPacket *msg)
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
           if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
           {
-            turut=turut+1;
-//Serial.println(F("processUBXpacket: packetUBXMGAACK is full. ACK will be lost!"));
+            Serial.println(F("processUBXpacket: packetUBXMGAACK is full. ACK will be lost!"));
           }
 #endif
         }
@@ -4437,8 +4323,7 @@ void SFE_UBLOX_GNSS::processUBXpacket(ubxPacket *msg)
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
           if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
           {
-            turut=turut+1;
-//Serial.println(F("processUBXpacket: packetUBXMGADBD is full. DBD data will be lost!"));
+            Serial.println(F("processUBXpacket: packetUBXMGADBD is full. DBD data will be lost!"));
           }
 #endif
         }
@@ -4600,8 +4485,7 @@ bool SFE_UBLOX_GNSS::storePacket(ubxPacket *msg)
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
     if (_printDebug == true)
     {
-      turut=turut+1;
-//Serial.println(F("storePacket: file buffer not available!"));
+      Serial.println(F("storePacket: file buffer not available!"));
     }
 #endif
     return (false);
@@ -4614,8 +4498,7 @@ bool SFE_UBLOX_GNSS::storePacket(ubxPacket *msg)
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
     {
-      turut=turut+1;
-//Serial.println(F("storePacket: insufficient space available! Data will be lost!"));
+      Serial.println(F("storePacket: insufficient space available! Data will be lost!"));
     }
 #endif
     return (false);
@@ -4658,8 +4541,7 @@ bool SFE_UBLOX_GNSS::initStorageNMEA()
   {
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("initStorageNMEA: RAM alloc failed!"));
+      Serial.println(F("initStorageNMEA: RAM alloc failed!"));
 #endif
     return (false);
   }
@@ -4670,8 +4552,7 @@ bool SFE_UBLOX_GNSS::initStorageNMEA()
   {
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("initStorageNMEA: RAM alloc failed!"));
+      Serial.println(F("initStorageNMEA: RAM alloc failed!"));
 #endif
     return (false);
   }
@@ -5039,8 +4920,7 @@ bool SFE_UBLOX_GNSS::setRXMPMPmessageCallbackPtr(void (*callbackPointerPtr)(UBX_
   if (packetUBXRXMPMPmessage->callbackData == nullptr)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("setAutoRXMPMPmessagecallbackPtr: RAM alloc failed!"));
+      Serial.println(F("setAutoRXMPMPmessagecallbackPtr: RAM alloc failed!"));
     return (false);
   }
 
@@ -5056,8 +4936,7 @@ bool SFE_UBLOX_GNSS::initPacketUBXRXMPMPmessage()
   if (packetUBXRXMPMPmessage == nullptr)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("initPacketUBXRXMPMPmessage: RAM alloc failed!"));
+      Serial.println(F("initPacketUBXRXMPMPmessage: RAM alloc failed!"));
     return (false);
   }
   packetUBXRXMPMPmessage->automaticFlags.flags.all = 0;
@@ -5137,8 +5016,7 @@ bool SFE_UBLOX_GNSS::init(uint16_t maxWait, bool assumeSuccess)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
     {
-      turut=turut+1;
-//Serial.println(F("begin: isConnected - second attempt"));
+      Serial.println(F("begin: isConnected - second attempt"));
     }
     connected = isConnected(maxWait);
   }
@@ -5147,8 +5025,7 @@ bool SFE_UBLOX_GNSS::init(uint16_t maxWait, bool assumeSuccess)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
     {
-      turut=turut+1;
-//Serial.println(F("begin: isConnected - third attempt"));
+      Serial.println(F("begin: isConnected - third attempt"));
     }
     connected = isConnected(maxWait);
   }
@@ -5157,8 +5034,7 @@ bool SFE_UBLOX_GNSS::init(uint16_t maxWait, bool assumeSuccess)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
     {
-      turut=turut+1;
-//Serial.println(F("begin: third attempt failed. Assuming success..."));
+      Serial.println(F("begin: third attempt failed. Assuming success..."));
     }
     return (true);
   }
@@ -5178,8 +5054,7 @@ bool SFE_UBLOX_GNSS::createFileBuffer(void)
   {
     if (_printDebug == true)
     {
-      turut=turut+1;
-//Serial.println(F("createFileBuffer: Warning. fileBufferSize is zero. Data logging is not possible."));
+      Serial.println(F("createFileBuffer: Warning. fileBufferSize is zero. Data logging is not possible."));
     }
     return (false);
   }
@@ -5188,8 +5063,7 @@ bool SFE_UBLOX_GNSS::createFileBuffer(void)
   {                             // This will happen if you call .begin more than once - without calling .end first
     if (_printDebug == true)
     {
-      turut=turut+1;
-//Serial.println(F("createFileBuffer: Warning. File buffer already exists. Skipping..."));
+      Serial.println(F("createFileBuffer: Warning. File buffer already exists. Skipping..."));
     }
     return (false);
   }
@@ -5200,18 +5074,15 @@ bool SFE_UBLOX_GNSS::createFileBuffer(void)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
     {
-      turut=turut+1;
-//Serial.println(F("createFileBuffer: RAM alloc failed!"));
+      Serial.println(F("createFileBuffer: RAM alloc failed!"));
     }
     fileBufferSize = 0; // Set file buffer size so user can check with getFileBufferSize (ubxFileBuffer is protected)
     return (false);
   }
   if (_printDebug == true)
   {
-    turut=turut+1;
-//Serial.print(F("createFileBuffer: fileBufferSize is: "));
-    turut=turut+1;
-//Serial.println(fileBufferSize);
+    Serial.print(F("createFileBuffer: fileBufferSize is: "));
+    Serial.println(fileBufferSize);
   }
 
   fileBufferHead = 0; // Initialize head and tail
@@ -5233,8 +5104,7 @@ bool SFE_UBLOX_GNSS::setPacketCfgPayloadSize(size_t payloadSize)
     packetCfg.payload = payloadCfg;
     packetCfgPayloadSize = payloadSize;
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("setPacketCfgPayloadSize: Zero payloadSize!"));
+      Serial.println(F("setPacketCfgPayloadSize: Zero payloadSize!"));
   }
 
   else if (payloadCfg == nullptr) // Memory has not yet been allocated - so use new
@@ -5247,8 +5117,7 @@ bool SFE_UBLOX_GNSS::setPacketCfgPayloadSize(size_t payloadSize)
       success = false;
       packetCfgPayloadSize = 0;
       if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-        turut=turut+1;
-//Serial.println(F("setPacketCfgPayloadSize: RAM alloc failed!"));
+        Serial.println(F("setPacketCfgPayloadSize: RAM alloc failed!"));
     }
     else
       packetCfgPayloadSize = payloadSize;
@@ -5256,8 +5125,7 @@ bool SFE_UBLOX_GNSS::setPacketCfgPayloadSize(size_t payloadSize)
     if ((packetCfgPayloadSize + 8) > spiBufferSize) // Warn the user if spiBuffer is now smaller than the packetCfg payload. Could result in lost data
     {
       if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-        turut=turut+1;
-//Serial.println(F("setPacketCfgPayloadSize: packetCfgPayloadSize > spiBufferSize!"));
+        Serial.println(F("setPacketCfgPayloadSize: packetCfgPayloadSize > spiBufferSize!"));
     }
   }
 
@@ -5269,8 +5137,7 @@ bool SFE_UBLOX_GNSS::setPacketCfgPayloadSize(size_t payloadSize)
     {
       success = false;                                           // Report failure. Don't change payloadCfg, packetCfg.payload or packetCfgPayloadSize
       if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-        turut=turut+1;
-//Serial.println(F("setPacketCfgPayloadSize: RAM resize failed!"));
+        Serial.println(F("setPacketCfgPayloadSize: RAM resize failed!"));
     }
     else
     {
@@ -5284,8 +5151,7 @@ bool SFE_UBLOX_GNSS::setPacketCfgPayloadSize(size_t payloadSize)
     if ((packetCfgPayloadSize + 8) > spiBufferSize) // Warn the user if spiBuffer is now smaller than the packetCfg payload. Could result in lost data
     {
       if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("setPacketCfgPayloadSize: packetCfgPayloadSize > spiBufferSize!"));
+      Serial.println(F("setPacketCfgPayloadSize: packetCfgPayloadSize > spiBufferSize!"));
     }
   }
 
@@ -5311,8 +5177,7 @@ bool SFE_UBLOX_GNSS::createRTCMBuffer(void)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
     {
-      turut=turut+1;
-//Serial.println(F("createRTCMBuffer: RAM alloc failed!"));
+      Serial.println(F("createRTCMBuffer: RAM alloc failed!"));
     }
     rtcmBufferSize = 0; // Set buffer size so user can check with getRTCMBufferSize (rtcmBuffer is protected)
     return (false);
@@ -5406,12 +5271,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::getVal(uint32_t key, uint8_t layer, uint16_t 
   payloadCfg[7] = key >> 8 * 3;
   if (_printDebug == true)
   {
-    turut=turut+1;
-//Serial.print(F("getVal key: 0x"));
-    turut=turut+1;
-//Serial.print(key, HEX);
-    turut=turut+1;
-//Serial.println();
+    Serial.print(F("getVal key: 0x"));
+    Serial.print(key, HEX);
+    Serial.println();
   }
 
   // Send VALGET command with this key
@@ -5419,10 +5281,8 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::getVal(uint32_t key, uint8_t layer, uint16_t 
   sfe_ublox_status_e retVal = sendCommand(&packetCfg, maxWait);
   if (_printDebug == true)
   {
-    turut=turut+1;
-//Serial.print(F("getVal: sendCommand returned: "));
-    turut=turut+1;
-//Serial.println(statusString(retVal));
+    Serial.print(F("getVal: sendCommand returned: "));
+    Serial.println(statusString(retVal));
   }
   // Verify the response is the correct length as compared to what the user called (did the module respond with 8-bits but the user called getVal32?)
   // Response is 8 bytes plus cfg data
@@ -5441,8 +5301,7 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::sendCommand(ubxPacket *outgoingUBX, uint16_t 
   calcChecksum(outgoingUBX); // Sets checksum A and B bytes of the packet
   if (_printDebug == true)
   {
-    turut=turut+1;
-//Serial.print(F("\nSending: "));
+    Serial.print(F("\nSending: "));
     printPacket(outgoingUBX, true); // Always print payload
   }
 
@@ -5453,8 +5312,7 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::sendCommand(ubxPacket *outgoingUBX, uint16_t 
     {
       if (_printDebug == true)
       {
-        turut=turut+1;
-//Serial.println(F("Send I2C Command failed"));
+        Serial.println(F("Send I2C Command failed"));
       }
       return retVal;
     }
@@ -5467,8 +5325,7 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::sendCommand(ubxPacket *outgoingUBX, uint16_t 
     {
       if (_printDebug == true)
       {
-        turut=turut+1;
-//Serial.println(F("sendCommand: Waiting for ACK response"));
+        Serial.println(F("sendCommand: Waiting for ACK response"));
       }
       retVal = waitForACKResponse(outgoingUBX, outgoingUBX->cls, outgoingUBX->id, maxWait); // Wait for Ack response
     }
@@ -5476,8 +5333,7 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::sendCommand(ubxPacket *outgoingUBX, uint16_t 
     {
       if (_printDebug == true)
       {
-        turut=turut+1;
-//Serial.println(F("sendCommand: Waiting for No ACK response"));
+        Serial.println(F("sendCommand: Waiting for No ACK response"));
       }
       retVal = waitForNoACKResponse(outgoingUBX, outgoingUBX->cls, outgoingUBX->id, maxWait); // Wait for Ack response
     }
@@ -5660,12 +5516,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForACKResponse(ubxPacket *outgoingUBX, ui
       {
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("waitForACKResponse: valid data and valid ACK received after "));
-          turut=turut+1;
-//Serial.print(millis() - startTime);
-          turut=turut+1;
-//Serial.println(F(" msec"));
+          Serial.print(F("waitForACKResponse: valid data and valid ACK received after "));
+          Serial.print(millis() - startTime);
+          Serial.println(F(" msec"));
         }
         return (SFE_UBLOX_STATUS_DATA_RECEIVED); // We received valid data and a correct ACK!
       }
@@ -5679,12 +5532,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForACKResponse(ubxPacket *outgoingUBX, ui
       {
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("waitForACKResponse: no data and valid ACK after "));
-          turut=turut+1;
-//Serial.print(millis() - startTime);
-          turut=turut+1;
-//Serial.println(F(" msec"));
+          Serial.print(F("waitForACKResponse: no data and valid ACK after "));
+          Serial.print(millis() - startTime);
+          Serial.println(F(" msec"));
         }
         return (SFE_UBLOX_STATUS_DATA_SENT); // We got an ACK but no data...
       }
@@ -5700,12 +5550,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForACKResponse(ubxPacket *outgoingUBX, ui
       {
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("waitForACKResponse: data being OVERWRITTEN after "));
-          turut=turut+1;
-//Serial.print(millis() - startTime);
-          turut=turut+1;
-//Serial.println(F(" msec"));
+          Serial.print(F("waitForACKResponse: data being OVERWRITTEN after "));
+          Serial.print(millis() - startTime);
+          Serial.println(F(" msec"));
         }
         return (SFE_UBLOX_STATUS_DATA_OVERWRITTEN); // Data was valid but has been or is being overwritten
       }
@@ -5716,12 +5563,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForACKResponse(ubxPacket *outgoingUBX, ui
       {
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("waitForACKResponse: CRC failed after "));
-          turut=turut+1;
-//Serial.print(millis() - startTime);
-          turut=turut+1;
-//Serial.println(F(" msec"));
+          Serial.print(F("waitForACKResponse: CRC failed after "));
+          Serial.print(millis() - startTime);
+          Serial.println(F(" msec"));
         }
         return (SFE_UBLOX_STATUS_CRC_FAIL); // Checksum fail
       }
@@ -5737,12 +5581,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForACKResponse(ubxPacket *outgoingUBX, ui
       {
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("waitForACKResponse: data was NOTACKNOWLEDGED (NACK) after "));
-          turut=turut+1;
-//Serial.print(millis() - startTime);
-          turut=turut+1;
-//Serial.println(F(" msec"));
+          Serial.print(F("waitForACKResponse: data was NOTACKNOWLEDGED (NACK) after "));
+          Serial.print(millis() - startTime);
+          Serial.println(F(" msec"));
         }
         return (SFE_UBLOX_STATUS_COMMAND_NACK); // We received a NACK!
       }
@@ -5754,12 +5595,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForACKResponse(ubxPacket *outgoingUBX, ui
       {
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("waitForACKResponse: VALID data and INVALID ACK received after "));
-          turut=turut+1;
-//Serial.print(millis() - startTime);
-          turut=turut+1;
-//Serial.println(F(" msec"));
+          Serial.print(F("waitForACKResponse: VALID data and INVALID ACK received after "));
+          Serial.print(millis() - startTime);
+          Serial.println(F(" msec"));
         }
         return (SFE_UBLOX_STATUS_DATA_RECEIVED); // We received valid data and an invalid ACK!
       }
@@ -5770,12 +5608,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForACKResponse(ubxPacket *outgoingUBX, ui
       {
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("waitForACKResponse: INVALID data and INVALID ACK received after "));
-          turut=turut+1;
-//Serial.print(millis() - startTime);
-          turut=turut+1;
-//Serial.println(F(" msec"));
+          Serial.print(F("waitForACKResponse: INVALID data and INVALID ACK received after "));
+          Serial.print(millis() - startTime);
+          Serial.println(F(" msec"));
         }
         return (SFE_UBLOX_STATUS_FAIL); // We received invalid data and an invalid ACK!
       }
@@ -5786,12 +5621,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForACKResponse(ubxPacket *outgoingUBX, ui
       {
         // if (_printDebug == true)
         // {
-        //   turut=turut+1;
-//Serial.print(F("waitForACKResponse: valid data after "));
-        //   turut=turut+1;
-//Serial.print(millis() - startTime);
-        //   turut=turut+1;
-//Serial.println(F(" msec. Waiting for ACK."));
+        //   Serial.print(F("waitForACKResponse: valid data after "));
+        //   Serial.print(millis() - startTime);
+        //   Serial.println(F(" msec. Waiting for ACK."));
         // }
       }
 
@@ -5807,24 +5639,18 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForACKResponse(ubxPacket *outgoingUBX, ui
   {
     if (_printDebug == true)
     {
-      turut=turut+1;
-//Serial.print(F("waitForACKResponse: TIMEOUT with valid data after "));
-      turut=turut+1;
-//Serial.print(millis() - startTime);
-      turut=turut+1;
-//Serial.println(F(" msec. "));
+      Serial.print(F("waitForACKResponse: TIMEOUT with valid data after "));
+      Serial.print(millis() - startTime);
+      Serial.println(F(" msec. "));
     }
     return (SFE_UBLOX_STATUS_DATA_RECEIVED); // We received valid data... But no ACK!
   }
 
   if (_printDebug == true)
   {
-    turut=turut+1;
-//Serial.print(F("waitForACKResponse: TIMEOUT after "));
-    turut=turut+1;
-//Serial.print(millis() - startTime);
-    turut=turut+1;
-//Serial.println(F(" msec."));
+    Serial.print(F("waitForACKResponse: TIMEOUT after "));
+    Serial.print(millis() - startTime);
+    Serial.println(F(" msec."));
   }
 
   return (SFE_UBLOX_STATUS_TIMEOUT);
@@ -5856,12 +5682,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForNoACKResponse(ubxPacket *outgoingUBX, 
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("waitForNoACKResponse: valid data with CLS/ID match after "));
-          turut=turut+1;
-//Serial.print(millis() - startTime);
-          turut=turut+1;
-//Serial.println(F(" msec"));
+          Serial.print(F("waitForNoACKResponse: valid data with CLS/ID match after "));
+          Serial.print(millis() - startTime);
+          Serial.println(F(" msec"));
         }
 #endif
         return (SFE_UBLOX_STATUS_DATA_RECEIVED); // We received valid data!
@@ -5879,12 +5702,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForNoACKResponse(ubxPacket *outgoingUBX, 
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("waitForNoACKResponse: data being OVERWRITTEN after "));
-          turut=turut+1;
-//Serial.print(millis() - startTime);
-          turut=turut+1;
-//Serial.println(F(" msec"));
+          Serial.print(F("waitForNoACKResponse: data being OVERWRITTEN after "));
+          Serial.print(millis() - startTime);
+          Serial.println(F(" msec"));
         }
 #endif
         return (SFE_UBLOX_STATUS_DATA_OVERWRITTEN); // Data was valid but has been or is being overwritten
@@ -5896,18 +5716,12 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForNoACKResponse(ubxPacket *outgoingUBX, 
       {
         // if (_printDebug == true)
         // {
-        //   turut=turut+1;
-//Serial.print(F("waitForNoACKResponse: valid but UNWANTED data after "));
-        //   turut=turut+1;
-//Serial.print(millis() - startTime);
-        //   turut=turut+1;
-//Serial.print(F(" msec. Class: 0x"));
-        //   turut=turut+1;
-//Serial.print(outgoingUBX->cls, HEX);
-        //   turut=turut+1;
-//Serial.print(F(" ID: 0x"));
-        //   turut=turut+1;
-//Serial.print(outgoingUBX->id, HEX);
+        //   Serial.print(F("waitForNoACKResponse: valid but UNWANTED data after "));
+        //   Serial.print(millis() - startTime);
+        //   Serial.print(F(" msec. Class: 0x"));
+        //   Serial.print(outgoingUBX->cls, HEX);
+        //   Serial.print(F(" ID: 0x"));
+        //   Serial.print(outgoingUBX->id, HEX);
         // }
       }
 
@@ -5917,12 +5731,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForNoACKResponse(ubxPacket *outgoingUBX, 
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
         if (_printDebug == true)
         {
-          turut=turut+1;
-//Serial.print(F("waitForNoACKResponse: CLS/ID match but failed CRC after "));
-          turut=turut+1;
-//Serial.print(millis() - startTime);
-          turut=turut+1;
-//Serial.println(F(" msec"));
+          Serial.print(F("waitForNoACKResponse: CLS/ID match but failed CRC after "));
+          Serial.print(millis() - startTime);
+          Serial.println(F(" msec"));
         }
 #endif
         return (SFE_UBLOX_STATUS_CRC_FAIL); // We received invalid data
@@ -5935,12 +5746,9 @@ sfe_ublox_status_e SFE_UBLOX_GNSS::waitForNoACKResponse(ubxPacket *outgoingUBX, 
 #ifndef SFE_UBLOX_REDUCED_PROG_MEM
   if (_printDebug == true)
   {
-    turut=turut+1;
-//Serial.print(F("waitForNoACKResponse: TIMEOUT after "));
-    turut=turut+1;
-//Serial.print(millis() - startTime);
-    turut=turut+1;
-//Serial.println(F(" msec. No packet received."));
+    Serial.print(F("waitForNoACKResponse: TIMEOUT after "));
+    Serial.print(millis() - startTime);
+    Serial.println(F(" msec. No packet received."));
   }
 #endif
 
@@ -5993,12 +5801,9 @@ bool SFE_UBLOX_GNSS::checkUbloxI2C(ubxPacket *incomingUBX, uint8_t requestedClas
 
     if (_printDebug == true)
     {
-      turut=turut+1;
-//Serial.print(F("checkUbloxI2C: "));
-      turut=turut+1;
-//Serial.print(bytesAvailable);
-      turut=turut+1;
-//Serial.println(F(" bytes available"));
+      Serial.print(F("checkUbloxI2C: "));
+      Serial.print(bytesAvailable);
+      Serial.println(F(" bytes available"));
     }
 
     while (bytesAvailable)
@@ -6027,8 +5832,7 @@ bool SFE_UBLOX_GNSS::checkUbloxI2C(ubxPacket *incomingUBX, uint8_t requestedClas
           currentSentence = SFE_UBLOX_SENTENCE_TYPE_NONE; // Reset the sentence to being looking for a new start char
         if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
         {
-          turut=turut+1;
-//Serial.println(F("checkUbloxI2C: bus error? bytesReturned != bytesToRead"));
+          Serial.println(F("checkUbloxI2C: bus error? bytesReturned != bytesToRead"));
         }
 
         return (false);
@@ -6134,26 +5938,16 @@ bool SFE_UBLOX_GNSS::getModuleInfo(uint16_t maxWait)
   {
     if (_printDebug == true)
     {
-      turut=turut+1;
-//Serial.print(F("getModuleInfo: FWVER: "));
-      turut=turut+1;
-//Serial.print(moduleSWVersion->firmwareVersionHigh);
-      turut=turut+1;
-//Serial.print(F("."));
-      turut=turut+1;
-//Serial.println(moduleSWVersion->firmwareVersionLow);
-      turut=turut+1;
-//Serial.print(F("getModuleInfo: PROTVER: "));
-      turut=turut+1;
-//Serial.print(moduleSWVersion->protocolVersionHigh);
-      turut=turut+1;
-//Serial.print(F("."));
-      turut=turut+1;
-//Serial.println(moduleSWVersion->protocolVersionLow);
-      turut=turut+1;
-//Serial.print(F("getModuleInfo: MOD: "));
-      turut=turut+1;
-//Serial.println(moduleSWVersion->moduleName);
+      Serial.print(F("getModuleInfo: FWVER: "));
+      Serial.print(moduleSWVersion->firmwareVersionHigh);
+      Serial.print(F("."));
+      Serial.println(moduleSWVersion->firmwareVersionLow);
+      Serial.print(F("getModuleInfo: PROTVER: "));
+      Serial.print(moduleSWVersion->protocolVersionHigh);
+      Serial.print(F("."));
+      Serial.println(moduleSWVersion->protocolVersionLow);
+      Serial.print(F("getModuleInfo: MOD: "));
+      Serial.println(moduleSWVersion->moduleName);
     }
 
     moduleSWVersion->moduleQueried = true; // Mark this data as new
@@ -6173,8 +5967,7 @@ bool SFE_UBLOX_GNSS::initModuleSWVersion()
   if (moduleSWVersion == nullptr)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("initModuleSWVersion: RAM alloc failed!"));
+      Serial.println(F("initModuleSWVersion: RAM alloc failed!"));
     return (false);
   }
   moduleSWVersion->protocolVersionHigh = 0; // Clear the contents
@@ -6384,8 +6177,7 @@ bool SFE_UBLOX_GNSS::addCfgValsetN(uint32_t key, uint8_t *value, uint8_t N)
   if ((_autoSendAtSpaceRemaining > 0) && (packetCfg.len >= (packetCfgPayloadSize - _autoSendAtSpaceRemaining)))
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("addCfgValsetN: autosend"));
+      Serial.println(F("addCfgValsetN: autosend"));
     if (sendCommand(&packetCfg) != SFE_UBLOX_STATUS_DATA_SENT) // We are only expecting an ACK
       return false;
     packetCfg.len = 4; // 4 byte header
@@ -6397,8 +6189,7 @@ bool SFE_UBLOX_GNSS::addCfgValsetN(uint32_t key, uint8_t *value, uint8_t N)
   if (packetCfg.len >= (packetCfgPayloadSize - (4 + N)))
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("addCfgValsetN: packetCfgPayloadSize reached!"));
+      Serial.println(F("addCfgValsetN: packetCfgPayloadSize reached!"));
 
     return false;
   }
@@ -6406,8 +6197,7 @@ bool SFE_UBLOX_GNSS::addCfgValsetN(uint32_t key, uint8_t *value, uint8_t N)
   if (_numCfgKeys == CFG_VALSET_MAX_KEYS)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("addCfgValsetN: key limit reached!"));
+      Serial.println(F("addCfgValsetN: key limit reached!"));
     return false;
   }
 
@@ -6442,8 +6232,7 @@ bool SFE_UBLOX_GNSS::setDynamicSPARTNKey(uint8_t keyLengthBytes, uint16_t validF
   if (binaryKey == nullptr)
   {
     if (_printDebug == true)
-      turut=turut+1;
-//Serial.println(F("setDynamicSPARTNKey: binaryKey RAM allocation failed!"));
+      Serial.println(F("setDynamicSPARTNKey: binaryKey RAM allocation failed!"));
     return (false);
   }
 
@@ -6540,8 +6329,7 @@ bool SFE_UBLOX_GNSS::setDynamicSPARTNKeys(uint8_t keyLengthBytes1, uint16_t vali
   if (binaryKey1 == nullptr)
   {
     if (_printDebug == true)
-      turut=turut+1;
-//Serial.println(F("setDynamicSPARTNKeys: binaryKey1 RAM allocation failed!"));
+      Serial.println(F("setDynamicSPARTNKeys: binaryKey1 RAM allocation failed!"));
     return (false);
   }
 
@@ -6550,8 +6338,7 @@ bool SFE_UBLOX_GNSS::setDynamicSPARTNKeys(uint8_t keyLengthBytes1, uint16_t vali
   if (binaryKey2 == nullptr)
   {
     if (_printDebug == true)
-      turut=turut+1;
-//Serial.println(F("setDynamicSPARTNKeys: binaryKey2 RAM allocation failed!"));
+      Serial.println(F("setDynamicSPARTNKeys: binaryKey2 RAM allocation failed!"));
     delete[] binaryKey1;
     return (false);
   }
@@ -6707,8 +6494,7 @@ bool SFE_UBLOX_GNSS::setAutoPVTcallbackPtr(void (*callbackPointerPtr)(UBX_NAV_PV
   if (packetUBXNAVPVT->callbackData == nullptr)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("setAutoPVTcallbackPtr: RAM alloc failed!"));
+      Serial.println(F("setAutoPVTcallbackPtr: RAM alloc failed!"));
     return (false);
   }
 
@@ -6770,8 +6556,7 @@ bool SFE_UBLOX_GNSS::setRXMCORcallbackPtr(void (*callbackPointerPtr)(UBX_RXM_COR
   if (packetUBXRXMCOR->callbackData == nullptr)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("setAutoRXMCORcallbackPtr: RAM alloc failed!"));
+      Serial.println(F("setAutoRXMCORcallbackPtr: RAM alloc failed!"));
     return (false);
   }
 
@@ -6788,8 +6573,7 @@ bool SFE_UBLOX_GNSS::initPacketUBXRXMCOR()
   if (packetUBXRXMCOR == nullptr)
   {
     if ((_printDebug == true) || (_printLimitedDebug == true)) // This is important. Print this if doing limited debugging
-      turut=turut+1;
-//Serial.println(F("initPacketUBXRXMCOR: RAM alloc failed!"));
+      Serial.println(F("initPacketUBXRXMCOR: RAM alloc failed!"));
     return (false);
   }
   packetUBXRXMCOR->automaticFlags.flags.all = 0;
