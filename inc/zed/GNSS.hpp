@@ -1,5 +1,5 @@
-#ifndef BNO_H
-#define BNO_H
+#ifndef GNSS_H
+#define GNSS_H
 
 
 #include "GNSS_DEF.hpp"
